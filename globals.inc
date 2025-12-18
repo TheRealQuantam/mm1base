@@ -442,7 +442,7 @@ L10ECF := $8ECF
 
 .global SwitchBank8, SwitchBankA, FarCallRunEnemyAI, FarCallRunBossAI
 
-.include "mm1mmc3regs.inc"
+.include "mmc3regs.inc"
 
 .global ResetHdlrPart2
 .global F1C55D
