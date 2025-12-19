@@ -9,7 +9,6 @@ Currently implemented new features:
 - Drastically reorganized ROM structure
     - ROM size expanded to 256 KB
     - Core gameplay loop, enemy handlers, and boss handlers broken out into their own 8 KB banks, each with 2-4 KB free space for new code to be added
-    - New ROM structure reduces the number of bank swaps per frame, slightly reducing lag
 	- __NOTE__: Because of the drastic reorganization many things are in different places than in the original game ROM. This means most patches for the original ROM will __not__ work without modification.
 - Enhancements
 	- Eliminate stutter when picking up a refill on full life/energy
@@ -19,6 +18,7 @@ Currently implemented new features:
 	- Severe falling speed when falling off objects
 	- Bad foot holder collision detection
 - Optimizations
+    - New ROM structure reduces the number of bank swaps per frame
 	- Portions of the sprite buffer that were previously unused are not cleared each frame (mm1spritelag)
 	- Sprite slots are not consumed by the weapon energy bar when no weapon is selected
 	
