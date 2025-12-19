@@ -4010,13 +4010,21 @@ Lbl_b88a:
     ; The boss has now posed.
     lda #$25
     sta TSAPPUtransfer0AttrAddress+0
+	
+.ifndef DISABLE_SCORE
     lda #$90
+.else
+	lda #$b0 ; Move the name down a couple rows
+.endif
+	
     sta TSAPPUtransfer0AttrAddress+1
     lda #$00
     sta TSAPPUtransfer0AttrData
     lda CurrentStage
     ldx #$07    ; Text length
     jsr F1BB4A    ; Print text
+	
+.ifndef DISABLE_SCORE
     lda #$d0
     sta TSAPPUtransfer0AttrAddress+1
     lda #$09
@@ -4105,6 +4113,9 @@ Lbl_b936:
     adc $3d
     sta $3d
     ldx #$48
+.else
+	ldx #$b8
+.endif
 
 Lbl_b947:
     jsr NextFrame

@@ -5,12 +5,23 @@ CFG_FILE := mm1dasm.cfg
 ASM_FILES := $(wildcard $(SRCDIR)/*.s)
 
 USBUILDDIR := build/us
-US_O_FILES := $(patsubst $(SRCDIR)/%.s,$(USBUILDDIR)/%.o,$(ASM_FILES))
 US_STEM := mm1base
 
 JBUILDDIR := build/japan
-J_O_FILES := $(patsubst $(SRCDIR)/%.s,$(JBUILDDIR)/%.o,$(ASM_FILES))
 J_STEM := rm1base
+
+COMMON_CA65_OPTS := -g
+
+ifneq ($(DISABLE_SCORE),)
+COMMON_CA65_OPTS += -DDISABLE_SCORE
+USBUILDDIR := $(USBUILDDIR)noscore
+US_STEM := $(US_STEM)noscore
+JBUILDDIR := $(JBUILDDIR)noscore
+J_STEM := $(J_STEM)noscore
+endif
+
+US_O_FILES := $(patsubst $(SRCDIR)/%.s,$(USBUILDDIR)/%.o,$(ASM_FILES))
+J_O_FILES := $(patsubst $(SRCDIR)/%.s,$(JBUILDDIR)/%.o,$(ASM_FILES))
 
 #all: us japan
 
@@ -37,7 +48,7 @@ $(US_STEM).nes: $(CFG_FILE) $(US_O_FILES)
 
 $(USBUILDDIR)/%.o: $(SRCDIR)/%.s globals.inc
 	$(file > $(USBUILDDIR)/build.inc,.define SRC_ROM "$(BASE_ROM)")
-	ca65 -g -I $(USBUILDDIR) -o $@ $<
+	ca65 $(COMMON_CA65_OPTS) -I $(USBUILDDIR) -o $@ $<
 	
 $(US_STEM).bps: $(US_STEM).nes
 #	Requires flips from https://www.romhacking.net/utilities/1040/
@@ -48,7 +59,7 @@ $(J_STEM).nes: $(CFG_FILE) $(J_O_FILES)
 
 $(JBUILDDIR)/%.o: $(SRCDIR)/%.s globals.inc
 	$(file > $(JBUILDDIR)/build.inc,.define SRC_ROM "$(BASE_ROM)")
-	ca65 -g -DJ_VERSION -I $(JBUILDDIR) -o $@ $<
+	ca65 $(COMMON_CA65_OPTS) -DJ_VERSION -I $(JBUILDDIR) -o $@ $<
 
 $(J_STEM).bps: $(J_STEM).nes
 #	Requires flips from https://www.romhacking.net/utilities/1040/

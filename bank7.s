@@ -163,6 +163,7 @@ L1C0BB: ; -
 /* 1C0C0: EE A0 06 */  inc ObjectLifeCycleCounter+0
 
 L1C0C3: ; -
+.ifndef DISABLE_SCORE
 /* 1C0C3: A2 00 */     ldx #$00
 /* 1C0C5: 20 81 C1 */  jsr LevelEndAddThousandPoints
 /* 1C0C8: 20 AC C1 */  jsr F1C1AC
@@ -199,6 +200,11 @@ L1C0F9: ; +
 /* 1C104: 20 0F C2 */  jsr TimeDelayNoMove                               ; $C20F
 /* 1C107: A9 80 */     lda #$80
 /* 1C109: 20 0F C2 */  jsr TimeDelayNoMove                               ; $C20F
+.else
+; Delay 1 second before returning to stage select
+                       lda #$40
+                       jsr TimeDelayNoMove
+.endif
 
 L1C10C:
 /* 1C10C: 20 95 D4 */  jsr DisableNMIandPPU                          ; $D495
@@ -2016,6 +2022,7 @@ L1CA87:
 /* 1CA8B: C5 31 */     cmp CurrentStage
 /* 1CA8D: F0 4E */     beq L1CADD
 
+.ifndef DISABLE_SCORE
 ; Add 10,000 points to score if it was a rematch
 
 /* 1CA8F: A9 0A */     lda #$0A
@@ -2026,6 +2033,7 @@ L1CA93: ; -
 /* 1CA97: 20 40 D4 */  jsr IncreaseScore                           ; $D440
 /* 1CA9A: C6 0C */     dec $0C
 /* 1CA9C: D0 F5 */     bne L1CA93 ; -                                           ; $CA93
+.endif
 
 /* 1CA9E: A9 00 */     lda #$00
 /* 1CAA0: 85 0C */     sta $0C
@@ -3604,6 +3612,7 @@ DrawScoreAndMeters:
 /* 1D370: A5 BB */     lda DrawScoreAndMetersFlag
 /* 1D372: 30 75 */     bmi DrawScoreAndMetersRTS                       ; $D3E9
 
+.ifndef DISABLE_SCORE
 ; Draw score...
 
 /* 1D374: A9 68 */     lda #$68        ; start drawing score at x coordinate 104
@@ -3626,6 +3635,7 @@ L1D37E: ; -
 /* 1D390: 85 0C */     sta $0C
 /* 1D392: CA */        dex
 /* 1D393: 10 E9 */     bpl L1D37E ; -                                           ; $D37E
+.endif
 
 /* 1D395: A5 BB */     lda DrawScoreAndMetersFlag
 /* 1D397: D0 50 */     bne DrawScoreAndMetersRTS                       ; $D3E9
@@ -9883,6 +9893,8 @@ L1FA85: ; -
 /* 1FA8D: D0 F6 */       bne L1FA85 ; -
 /* 1FA8F: E0 26 */       cpx #$26
 /* 1FA91: D0 E0 */       bne L1FA73 ; --
+
+.ifndef DISABLE_SCORE
 /* 1FA93: A9 21 */       lda #$21
 /* 1FA95: 8D 06 20 */    sta $2006
 /* 1FA98: A9 6D */       lda #$6D
@@ -9894,6 +9906,7 @@ L1FA9F: ; -
 /* 1FAA3: 8D 07 20 */    sta $2007
 /* 1FAA6: CA */          dex
 /* 1FAA7: 10 F6 */       bpl L1FA9F ; -
+.endif
 /* 1FAA9: 84 1A */       sty $1A
 /* 1FAAB: 84 1B */       sty $1B
 /* 1FAAD: A9 03 */       lda #$03        ;game over-music

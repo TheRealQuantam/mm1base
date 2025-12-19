@@ -7102,9 +7102,12 @@ EnemyKilled:
 /* 17F00: 9D 20 04 */  STA ObjectFlags,X
 /* 17F03: 9D A0 06 */  STA ObjectLifeCycleCounter,X
 
+.ifndef DISABLE_SCORE
 /* 17F06: B9 82 FE */  LDA EnemyKillScoreTable,Y
 /* 17F09: 85 05 */     STA $05
 /* 17F0B: 20 40 D4 */  JSR IncreaseScore                                   ; $D440
+.endif
+
 /* 17F0E: 68 */       PLA
 
 /* 17F0F: C9 3A */    CMP #$3a
@@ -7115,9 +7118,15 @@ EnemyKilled:
 /* 17F13: A9 64 */    LDA #$64
 /* 17F15: 20 A0 C5 */ JSR RandomFunc
 
+.ifndef DISABLE_SCORE
 ; $3B = no drop
 /* 17F18: A0 3B */    LDY #$3b
 /* 17F1A: A2 05 */    LDX #$05
+.else
+                      LDY #$3c
+                      LDX #$04
+.endif
+
 L17F1C: ; -
 /* 17F1C: DD 3E BF */ CMP BonusProbabilityTable,X
 /* 17F1F: 90 04 */    BCC L17F25 ; +                                               ; $BF25
@@ -7125,7 +7134,12 @@ L17F1C: ; -
 /* 17F22: CA */       DEX
 /* 17F23: 10 F7 */    BPL L17F1C ; -                                               ; $BF1C
 L17F25: ; +
+.ifndef DISABLE_SCORE
 /* 17F25: C0 3B */    CPY #$3b
+.else
+                      CPY #$3c
+.endif
+
 /* 17F27: F0 10 */    BEQ L17F39 ; +                                               ; $BF39
 ; Spawn the bonus drop
 /* 17F29: 98 */       TYA
