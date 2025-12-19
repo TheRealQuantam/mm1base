@@ -11,12 +11,24 @@ Currently implemented new features:
     - Core gameplay loop, enemy handlers, and boss handlers broken out into their own 8 KB banks, each with 2-4 KB free space for new code to be added
     - New ROM structure reduces the number of bank swaps per frame, slightly reducing lag
 	- __NOTE__: Because of the drastic reorganization many things are in different places than in the original game ROM. This means most patches for the original ROM will __not__ work without modification.
-
+- Enhancements
+	- Eliminate stutter when picking up a refill on full life/energy
+	- Add DISABLE_SCORE switch that removes the score system from the game
+- Bug fixes
+	- Several race conditions related to bank-switching are fixed due to removal of UNROM bank-switching code
+	- Severe falling speed when falling off objects
+	- Bad foot holder collision detection
+- Optimizations
+	- Portions of the sprite buffer that were previously unused are not cleared each frame (mm1spritelag)
+	- Sprite slots are not consumed by the weapon energy bar when no weapon is selected
+	
 This project is still experimental and further changes are expected, as well as bug fixes if bugs are discovered.
 
 Features to be added in the future:
-- Built-in lag reduction, including incorporation of mm1spritelag
+- ROCK AND ROLL EDITOR SUPPORT
+- Further Built-in lag reduction
 - Built-in mm1ft for FamiTracker music support
+- Add option to make refills instant?
 
 # Building
 This disassembly is for the [cc65 toolchain](https://cc65.github.io/), and requires make (e.g. for Windows: [MinGW](https://sourceforge.net/projects/mingw/)). Banks 0-3, as well as the level data portion of banks 4/5, are taken from a copy of the original game ROM. From the command line:
