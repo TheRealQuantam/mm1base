@@ -455,3 +455,6 @@ PpuStatus_2002 := $2002
 SOUND_BANK = $4
 SOUND_BANK_LO = SOUND_BANK * 2
 SOUND_BANK_HI = SOUND_BANK_LO + 1
+
+; Number of bytes used in the sprite buffer last frame. Used to determine what needs to be cleared.
+PreviousSpriteBufferUsed := $C1

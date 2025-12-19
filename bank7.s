@@ -3147,8 +3147,10 @@ UpdateGraphics:
 ; Hide *all* sprites
 /* 1D138: A0 00 */     ldy #$00
 /* 1D13A: 84 0D */     sty SpriteCounter
+.if 0
 /* 1D13C: A2 40 */     ldx #$40
 /* 1D13E: 20 78 D4 */  jsr HideSprites                                 ; $D478
+.endif
 
 /* 1D141: A5 23 */     lda FrameCounter
 /* 1D143: 29 01 */     and #$01
@@ -3186,6 +3188,8 @@ L1D161: ; -
 /* 1D168: 20 6E D3 */  jsr DrawScoreAndMeters                          ; $D36E
 L1D16B:
 /* 1D16B: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	jsr HideUnusedSprites
+	
 	pla
 	jmp RetToBank
 
@@ -3436,6 +3440,9 @@ L1D2A6: ; +
 /* 1D2A6: 68 */        pla
 /* 1D2A7: 68 */        pla
 /* 1D2A8: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	; Sprite buffer is full
+	stx PreviousSpriteBufferUsed
+	
 	pla
 	jmp RetToBank
 
@@ -3646,11 +3653,20 @@ L1D37E: ; -
 
 ; Draw weapon meter
 /* 1D3BA: A6 5F */     ldx WeaponSelect
+
+; Don't draw the weapon meter at all if nothing is selected
+.if 0
 /* 1D3BC: F0 04 */     beq L1D3C2 ; +                                       ; $D3C2
 /* 1D3BE: A9 48 */     lda #$48 ; weapon != P
 /* 1D3C0: D0 02 */     bne L1D3C4 ; ++                                      ; $D3C4
 L1D3C2: ; +
 /* 1D3C2: A9 F8 */     lda #$F8 ; weapon == P
+.endif
+
+                       beq L1D3D3
+					   
+					   lda #$48
+
 L1D3C4: ; ++
 /* 1D3C4: 85 0E */     sta $0E            ; Ycoord
 /* 1D3C6: A9 DF 85 05 */   lda #$DF
@@ -3661,6 +3677,7 @@ L1D3C4: ; ++
 /* 1D3D0: 20 EC D3 */  jsr DrawMeter                               ; $D3EC
 
 ; Draw boss meter if fighting boss
+L1D3D3:
 /* 1D3D3: A5 3E */     lda BossCurrentStrategy
 /* 1D3D5: F0 12 */     beq DrawScoreAndMetersRTS ; +                                       ; $D3E9
 /* 1D3D7: A9 02 85 12 */   lda #$02
@@ -10182,6 +10199,33 @@ RetToBank:
 	pla
 	jmp SwitchBankA
 .endproc ; FarCallRunBossAI
+
+; Hide only the sprites that were visible last frame but not this frame. Clobbers all.
+.proc HideUnusedSprites
+	lda $d
+	sec
+	sbc PreviousSpriteBufferUsed
+	bcs @Done
+	
+	; A = Cur - Prev < 0
+	eor #$ff
+	lsr A
+	lsr A
+	tax
+	inx
+	
+	lda $d
+	clc
+	adc #$4
+	tay
+	jsr HideSprites
+	
+@Done: ; 5 bytes
+	lda $d
+	sta PreviousSpriteBufferUsed
+	
+	rts	
+.endproc ; HideUnusedSprites
 
 .segment "NFOOTER"
 
