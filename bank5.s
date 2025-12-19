@@ -761,14 +761,28 @@ MeterRefill:
 
 ; Weapon capsule
 /* 15459: A6 5F */    LDX WeaponSelect                                    ; If Megablaster selected then skip filling
-/* 1545B: F0 34 */    BEQ MeterFilled                                     ; $9491
+;/* 1545B: F0 34 */    BEQ MeterFilled                                     ; $9491
+
+                      BEQ AlreadyFilled
 
 FillMeter:
+; Check whether refill is even needed
+                      LDA Meters,X
+					  CMP #$1c
+					  BCC L1545D
+					  
+AlreadyFilled:
+                      LDA #$00
+					  STA CapsuleObtained
+					  
+					  RTS
+					  
+L1545D:
 /* 1545D: A5 AD */    LDA CapsuleObtained
 /* 1545F: 29 7F */    AND #$7f
 /* 15461: 85 3C */    STA MiscCounter1
-L15463: ; --
 
+L15463: ; --
 ; Add 1 to meter every 4th frame and play meter fill sound every 8th frame
 /* 15463: A5 23 */    LDA FrameCounter
 /* 15465: 29 03 */    AND #$03
