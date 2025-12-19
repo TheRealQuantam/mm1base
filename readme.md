@@ -1,6 +1,6 @@
 # Mega Man 1 Base
 
-Fork of the [Mega Man 1 Disassembly] (https://github.com/TheRealQuantam/mm1dasm/) with added features to make it a better base for new Mega Man romhacks.
+Fork of the [Mega Man 1 Disassembly](https://github.com/TheRealQuantam/mm1dasm/) with added features to make it a better base for new Mega Man romhacks.
 
 Currently implemented new features:
 - Conversion to MMC3
