@@ -949,6 +949,13 @@ L15571:
 /* 1557A: 68 */       PLA
 /* 1557B: F0 05 */    BEQ L15582
 /* 1557D: 8D 00 06 */ STA ObjectPosY+0
+
+; Reset fall speed on objects
+                      LDA #$00
+                      STA ObjectYSpeedFraction+0
+					  LDA #$FF
+					  STA ObjectYSpeed+0
+
 /* 15580: D0 04 */    BNE L15586
 L15582:
 /* 15582: 4C 29 96 */ JMP L15629
@@ -1151,7 +1158,10 @@ TestRidingWithCoordinates:
 
 /* 15691: 18 */       CLC
 /* 15692: AD 00 06 */ LDA ObjectPosY+0
-/* 15695: 69 0E */    ADC #$0E
+;/* 15695: 69 0E */    ADC #$0E
+
+                      ADC #$0D ; Give a few pixels leeway for moving objects
+
 /* 15697: 85 04 */    STA $04
 /* 15699: C5 08 */    CMP CurrentRoomPointer+2
 /* 1569B: B0 3C */    BCS L156D9 ; +++                    ;If Megaman is below, he's not on the lift.
@@ -1160,6 +1170,9 @@ TestRidingWithCoordinates:
 /* 156A1: ED 60 06 */ SBC ObjectYSpeedFraction+0
 /* 156A4: A5 04 */    LDA $04
 /* 156A6: ED 80 06 */ SBC ObjectYSpeed+0
+
+                      ADC #$04 ; Give a few pixels leeway for moving objects
+					  
 /* 156A9: C5 08 */    CMP CurrentRoomPointer+2   ;If, after moving, he's above, he's not on the lift.
 /* 156AB: 90 2C */    BCC L156D9 ; +++
 /* 156AD: 38 */       SEC
@@ -1239,6 +1252,13 @@ L1571C: ; ++
 /* 15729: 68 */       PLA
 /* 1572A: F0 03 */    BEQ L1572F ; +                                               ; $972F
 /* 1572C: 8D 00 06 */ STA ObjectPosY+0
+
+; Reset fall speed on objects
+                      LDA #$00
+                      STA ObjectYSpeedFraction+0
+					  LDA #$FF
+					  STA ObjectYSpeed+0
+
 L1572F: ; +
 /* 1572F: 60 */       RTS
 
