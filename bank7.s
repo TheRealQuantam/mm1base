@@ -6,10 +6,11 @@
 	This bank's disassembly is a MIXTURE of Rockman (J) and Mega Man (U)
  */
 
-.segment "BANK7"
+.segment "BANK1E_1F"
 
-BankTable: .byte 0,1,2,3,4,5,6,7
+;BankTable: .byte 0,1,2,3,4,5,6,7
 
+.if 0
 Reset:
 /* 1C008: 78 */        sei
 /* 1C009: A9 01 */     lda #$01
@@ -19,7 +20,7 @@ Reset:
 /* 1C013: A9 05 */     lda #$05
 /* 1C015: 8D 05 C0 */  sta BankTable+5
 /* 1C018: 4C 00 90 */  jmp Reset2                                      ; $9000
-
+.endif
 
 ;
 ; if MegamanStallTimer != 0 then don't get joypad input in this frame
@@ -205,10 +206,14 @@ L1C10C:
 
 /* 1C111: A2 FF */     ldx #$FF
 /* 1C113: 9A */        txs
-
+.if 0
 /* 1C114: A9 05 */     lda #$05
 /* 1C116: 8D 05 C0 */  sta BankTable+5
 /* 1C119: 85 42 */     sta CurrentBank
+.endif
+
+	lda #($5 * 2 + 1)
+	jsr SwitchBankA
 
 /* 1C11B: A6 31 */     ldx CurrentStage
 /* 1C11D: E0 09 */     cpx #$09
@@ -487,9 +492,13 @@ L1C2A7: ; ++
 /* 1C2A9: 85 19 */     sta JoyD1
 /* 1C2AB: A2 FF */     ldx #$FF
 /* 1C2AD: 9A */        txs
+.if 0
 /* 1C2AE: A9 05 */     lda #$05
 /* 1C2B0: 85 42 */     sta CurrentBank
 /* 1C2B2: 8D 05 C0 */  sta BankTable+5
+.endif
+	lda #($5 * 2 + 1)
+	jsr SwitchBankA
 /* 1C2B5: A5 AB */     lda LastRestartPointType
 /* 1C2B7: C9 0C */     cmp #$0C
 /* 1C2B9: B0 03 */     bcs L1C2BE ; +                                   ; $C2BE
@@ -552,14 +561,26 @@ C314_table:
 
 
 TimeDelayC317:
+	lda CurBankA
+	pha
+	
 /* 1C317: A5 */        lda RefObjectNum
 /* 1C319: D0 03 */     bne L1C31E ; +                                           ; $C31E
+
+	lda #$f
+	jsr SwitchBankA
+
 /* 1C31B: 20 8C DB */  jsr RunBossAI
 
 L1C31E: ; +
+	lda #$e
+	jsr SwitchBankA
+	
 /* 1C31E: 20 EA 98 */  jsr RunEnemyAI                                   ; $98EA
 /* 1C321: 20 31 D1 */  jsr UpdateGraphics                              ; $D131
 /* 1C324: 20 1B C0 */  jsr NextFrame                                   ; $C01B
+	pla
+	jsr SwitchBankA
 /* 1C327: C6 3C */     dec MiscCounter1
 /* 1C329: 60 */        rts
 
@@ -632,7 +653,7 @@ L1C396:
 ;
 ;
 
-SwitchBankStage: ;doesn't modify P,A. Modifies X.
+SwitchBankStage:
 /* 1C39C: 08 */        php
 /* 1C39D: 48 */        pha
 /* 1C39E: 8A */        txa
@@ -643,33 +664,44 @@ SwitchBankStage: ;doesn't modify P,A. Modifies X.
 /* 1C3A4: 90 02 */     bcc L1C3A8 ; +                                       ; $C3A8
 /* 1C3A6: E9 06 */     sbc #$06
 L1C3A8: ; +
-
+.if 0
 /* 1C3A8: AA */        tax
 /* 1C3A9: 85 42 */     sta CurrentBank
 /* 1C3AB: 9D 00 C0 */  sta BankTable,x
+.endif
+	asl A
+	jsr SwitchBank8
 /* 1C3AE: 68 */        pla
 /* 1C3AF: AA */        tax
 /* 1C3B0: 68 */        pla
 /* 1C3B1: 28 */        plp
 /* 1C3B2: 60 */        rts
 
-
+.if 0
 SwitchBank05:
 /* 1C3B3: 08 */        php
 /* 1C3B4: 48 */        pha
 /* 1C3B5: A9 05 */     lda #$05
+.if 0
 /* 1C3B7: 85 42 */     sta CurrentBank
 /* 1C3B9: 8D 05 C0 */  sta BankTable+5
+.endif
+	jsr Switch16kBank
 /* 1C3BC: 68 */        pla
 /* 1C3BD: 28 */        plp
 /* 1C3BE: 60 */        rts
-
+.endif
 
 ; Handle weapon select screen?
 InvokeWeaponSelectDialog:
+.if 0
 /* 1C3BF: A9 06 */     lda #$06
 /* 1C3C1: 85 42 */     sta CurrentBank
 /* 1C3C3: 8D 06 C0 */  sta BankTable+6
+.endif
+
+	lda #($6 * 2 + 1)
+	jsr SwitchBankA
 
 /* 1C3C6: A5 AC */     lda FightingBossNum
 /* 1C3C8: C9 0A */     cmp #$0A
@@ -710,14 +742,23 @@ L1C3F7: ; ++
 /* 1C3F9: F0 02 */     beq L1C3FD ; +++                                     ; $C3FD
 /* 1C3FB: C6 1A */     dec ScrollPosX
 L1C3FD: ; +++
-/* 1C3FD: 4C B3 C3 */  jmp SwitchBank05                            ; $C3B3
+/* 1C3FD: 4C B3 C3 */  ;jmp SwitchBank05                            ; $C3B3
+	lda #($5 * 2 + 1)
+	jmp SwitchBankA
 
 
-; Arrived from bank 6
 F1C400:
 /* 1C400: AA */        tax
+.if 0
 /* 1C401: 85 42 */     sta CurrentBank
 /* 1C403: 9D 00 C0 */  sta BankTable,x
+.endif
+	lda CurBank8
+	pha
+	lda CurBankA
+	pha
+	txa
+	jsr Switch16kBank
 /* 1C406: A2 00 */     ldx #$00
 L1C408: ; -
 /* 1C408: B1 06 */     lda (CurrentRoomPointer),y
@@ -728,37 +769,64 @@ L1C408: ; -
 /* 1C411: D0 F5 */     bne L1C408 ; -                                       ; $C408
 SwitchBank6_a:
 /* 1C413: A9 06 */     lda #$06
+.if 0
 /* 1C415: 85 42 */     sta CurrentBank
 /* 1C417: 8D 06 C0 */  sta BankTable+6
 /* 1C41A: 60 */        rts
+.endif
+	pla
+	jmp RetToBank
 
 DrawBlockFromActiveLevelMap_Bank06callback:
 /* 1C41B: 20 E8 CD */  jsr DrawBlockFromActiveLevelMap
 SwitchBank6_b:
 /* 1C41E: A9 06 */     lda #$06
+.if 0
 /* 1C420: 85 42 */     sta CurrentBank
 /* 1C422: 8D 06 C0 */  sta BankTable+6
+.endif
 /* 1C425: 60 */        rts
 
 
 InitEndGameScene:
 /* 1C426: A9 06 */     lda #$06
+.if 0
 /* 1C428: 85 42 */     sta CurrentBank
 /* 1C42A: 8D 06 C0 */  sta BankTable+6
+.endif
+	lda #$5
+	jsr Switch16kBank
 /* 1C42D: 4C F0 BF */  jmp Lbl_bff0
 
 TeleportToStage_Bank06callback:
+	lda CurBank8
+	pha
+	lda CurBankA
+	pha
 /* 1C430: 20 E0 C4 */  jsr TeleportToStage                             ; $C4E0
-/* 1C433: 4C 56 C4 */  jmp SwitchBank06_c
+/* 1C433: 4C 56 C4 */  ;jmp SwitchBank06_c
+	pla
+	jmp RetToBank
 
 F1C436:
 /* 1C436: 4C 7B F6 */  jmp InitActor
 
 F1C439:
-/* 1C439: 20 B3 C3 */  jsr SwitchBank05                                ; $C3B3
+/* 1C439: 20 B3 C3 */  ;jsr SwitchBank05                                ; $C3B3
+	lda CurBankA
+	pha
+	lda #($5 * 2 + 1)
+	jsr SwitchBankA
 /* 1C43C: 20 6D 9E */  jsr ObjectUpdateMovementLeft
 /* 1C43F: 20 8F 98 */  jsr AutoCenterScreen
+	jmp L1C442
+	
 F1C442:
+	lda CurBankA
+	pha
+	lda #($5 * 2 + 1)
+	jsr SwitchBankA
+L1C442:
 /* 1C442: 20 31 D1 */  jsr UpdateGraphics                              ; $D131
 /* 1C445: 20 1B C0 */  jsr NextFrame                                   ; $C01B
 /* 1C448: E6 BD */     inc $BD
@@ -769,10 +837,14 @@ F1C442:
 /* 1C452: A9 00 */     lda #$00
 /* 1C454: 85 BD */     sta $BD
 SwitchBank06_c:
+.if 0
 /* 1C456: A9 06 */     lda #$06
 /* 1C458: 85 42 */     sta CurrentBank
 /* 1C45A: 8D 06 C0 */  sta BankTable+6
 /* 1C45D: 60 */        rts
+.endif
+	pla
+	jmp SwitchBankA
 
 Lbl_c45e:
 ; reset the current stage number?
@@ -813,7 +885,7 @@ L1C482: ; +
 
 
 InitStagePaletteAndActives:
-/* 1C483: 20 9C C3 */  jsr SwitchBankStage                     ; $C39C
+/* 1C483: 20 9C C3 */  ;jsr SwitchBankStage                     ; $C39C
 /* 1C486: A5 31 */     lda CurrentStage
 /* 1C488: C9 06 */     cmp #$06
 /* 1C48A: 90 0B */     bcc L1C497 ; +                                   ; $C497
@@ -875,7 +947,8 @@ L1C4D5: ; -
 /* 1C4DA: 88 */        dey
 /* 1C4DB: D0 F8 */     bne L1C4D5 ; -                                           ; $C4D5
 
-/* 1C4DD: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1C4DD: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 
 ;
@@ -919,7 +992,8 @@ L1C4F5: ; -
 
 /* 1C512: A9 00 */     lda #$00
 /* 1C514: 8D 80 06 */  sta ObjectYSpeed+0
-/* 1C517: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1C517: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 
 ;At C51A
@@ -935,10 +1009,12 @@ TeleportYcoord:
     .byte $B4,$94,$B4,$B4,$B4
 
 
-C53D_routine:
+F1C53D:
+.if 0
 /* 1C53D: A9 06 */     lda #$06
 /* 1C53F: 85 */        sta CurrentBank
 /* 1C541: 8D 06 C0 */  sta BankTable+6
+.endif
 
 /* 1C544: BD 00 04 */  lda ObjectSpriteNum,x
 /* 1C547: A0 06 */     ldy #$06
@@ -949,15 +1025,19 @@ L1C549: ; -
 /* 1C54F: 10 F8 */     bpl L1C549 ; -                                           ; $C549
 
 /* 1C551: A0 00 */     ldy #$00
-/* 1C553: 4C 64 C5 */  jmp L1C564 ; ++                                          ; $C564
+/* 1C553: 4C 64 C5 */  ;jmp L1C564 ; ++                                          ; $C564
+	beq L1C564
 L1C556: ; +
 /* 1C556: B9 4A 86 */  lda Lbl_864a,y
 /* 1C559: A8 */        tay
-/* 1C55A: 4C 64 C5 */  jmp L1C564 ; ++                                          ; $C564
+/* 1C55A: 4C 64 C5 */  ;jmp L1C564 ; ++                                          ; $C564
+
 F1C55D:
+.if 0
 /* 1C55D: A9 06 */     lda #$06
 /* 1C55F: 85 42 */     sta CurrentBank
 /* 1C561: 8D 06 C0 */  sta BankTable+6
+.endif
 L1C564: ; ++
 /* 1C564: B9 3A 86 */  lda Lbl_863a,y
 /* 1C567: 48 */        pha
@@ -966,9 +1046,8 @@ L1C564: ; ++
 /* 1C56D: 68 */        pla
 /* 1C56E: 29 0F */     and #$0F
 /* 1C570: 9D C0 04 */  sta ObjectXSpeed,x
-/* 1C573: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
-
-
+/* 1C573: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 ; This routine clears carry if #$F8 is found between $600+X and $600+TotalObjects
 ; and sets it otherwise
@@ -1095,18 +1174,20 @@ L1C607: ; +
 /* 1C612: 60 */        rts
 
 RoomLayoutLoadRoomNum:
-/* 1C613: 20 9C C3 */  jsr SwitchBankStage                         ; $C39C
+/* 1C613: 20 9C C3 */  ;jsr SwitchBankStage                         ; $C39C
 /* 1C616: C0 00 */     cpy #$00
 /* 1C618: 30 06 */     bmi L1C620 ; +                                       ; $C620
 /* 1C61A: B9 71 8C */  lda RoomLayoutTable+1,y
-/* 1C61D: 4C B3 C3 */  jmp SwitchBank05                            ; $C3B3
+/* 1C61D: 4C B3 C3 */  ;jmp SwitchBank05                            ; $C3B3
+	rts
 L1C620: ; +
 /* 1C620: A9 00 */     lda #$00
-/* 1C622: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1C622: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 LoadActiveByIndexAndSetBlockingness:
 ; Input: A = index into the active table.
-/* 1C625: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1C625: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 /* 1C628: AA */        tax
 /* 1C629: A5 0C */     lda $0C
 /* 1C62B: 9D 21 07 */  sta RoomActiveTable+1,x ;type
@@ -1116,28 +1197,32 @@ LoadActiveByIndexAndSetBlockingness:
 /* 1C635: BD 24 07 */  lda RoomActiveTable+4,x ;y1
 /* 1C638: 09 0B */     ora #$0B
 /* 1C63A: 85 0D */     sta $0D
-/* 1C63C: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1C63C: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 F1C63F:
-/* 1C63F: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1C63F: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 /* 1C642: A4 0C */     ldy $0C
 /* 1C644: 99 24 07 */  sta RoomActiveTable+4,y
-/* 1C647: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1C647: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 
 F1C64A:
-/* 1C64A: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1C64A: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 /* 1C64D: A4 0C */     ldy $0C
 /* 1C64F: B9 26 07 */  lda RoomActiveTable+6,y
 /* 1C652: 99 24 07 */  sta RoomActiveTable+4,y
-/* 1C655: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1C655: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 SetupEnemyGraphicsPointer:
-/* 1C658: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1C658: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 /* 1C65B: AE 60 04 */  ldx ObjectPosScreen+0                         ; $0460
 /* 1C65E: BD 40 8D */  lda RoomMonsterIndex,x
 /* 1C661: 85 7A */     sta CurrentRoomMonsterGraphicsIndex ; Only read at C6E8ö
-/* 1C663: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1C663: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 SpawnObject_TypeIsFF:
 ;
@@ -1148,7 +1233,10 @@ SpawnObject_TypeIsFF:
 ; The Y position is an index into ObjectFF_defs, which tells which tiles
 ; will be redefined.
 ;
-/* 1C666: A5 42 */     lda CurrentBank
+/* 1C666: A5 42 */     ;lda CurrentBank
+	lda CurBank8
+	pha
+	lda CurBankA
 /* 1C668: 48 */        pha
 /* 1C669: A5 92 */      lda AutoSpawnObjectFFcounter
 /* 1C66B: D0 08 */      bne L1C675 ; +                                           ; $C675
@@ -1192,9 +1280,12 @@ L1C698: ; -
 /* 1C6A7: 68 */         pla
 /* 1C6A8: 85 04 */      sta $04
 /* 1C6AA: 68 */        pla
+.if 0
 /* 1C6AB: AA */        tax
 /* 1C6AC: 9D 00 C0 */  sta BankTable,x ; switch back to the original bank
 /* 1C6AF: 60 */        rts
+.endif
+	jmp RetToBank
 
 
 
@@ -1219,8 +1310,11 @@ LoadEnemyGraphics:
 /* 1C6C8: D0 01 */     bne L1C6CB ; +
 /* 1C6CA: 60 */        rts
 L1C6CB: ; +
+	lda CurBank8
+	pha
+	lda $59
 /* 1C6CB: E6 59 */     inc $59
-/* 1C6CD: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1C6CD: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 /* 1C6D0: 4A */        lsr a
 /* 1C6D1: 6E 81 03 */  ror RawPPUtransferAddress+1
 /* 1C6D4: 4A */        lsr a
@@ -1256,7 +1350,8 @@ L1C700: ; -
 
 /* 1C708: A9 20 */     lda #$20
 /* 1C70A: 85 5E */     sta RawPPUtransferSize
-/* 1C70C: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1C70C: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	bne L1C727
 
 L1C70F: ; +
 /* 1C70F: A0 00 */     ldy #$00
@@ -1275,7 +1370,9 @@ L1C711: ; -
 /* 1C722: D0 ED */     bne L1C711 ; -                                           ; $C711
 L1C724: ; +
 /* 1C724: 20 2A C7 */  jsr PaletteSetupForSprites
-/* 1C727: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1C727: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+L1C727:
+	jmp RetToBank5
 
 PaletteSetupForSprites:
 /* 1C72A: A9 03 */     lda #>SpritePalettes
@@ -1314,7 +1411,9 @@ PaletteSetupForBGwith3F0:
 ; It is initialized in the beginning of each stage / forcescrolling
 
 WriteChr:
-/* 1C75B: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1C75B: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
+	lda CurBank8
+	pha
 
 /* 1C75E: A5 31 */     lda CurrentStage
 /* 1C760: C9 06 */     cmp #$06
@@ -1333,7 +1432,6 @@ L1C76C: ; ++
 
 L1C778: ; ---
 /* 1C778: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
-
 /* 1C77B: A4 0D */     ldy $0D
 
 /* 1C77D: A5 31 */     lda CurrentStage
@@ -1364,7 +1462,8 @@ L1C796: ; -
 /* 1C7A7: C6 0C */     dec $0C
 /* 1C7A9: D0 CD */     bne L1C778 ; --- ; more tile setups?
 
-/* 1C7AB: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1C7AB: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	jmp RetToBank5
 
 
 ; SwitchBankTile.
@@ -1387,10 +1486,13 @@ SwitchBankTile:
 /* 1C7BB: 68 */        pla
 
 /* 1C7BC: 29 03 */     and #$03
+.if 0
 /* 1C7BE: A8 */        tay
 /* 1C7BF: 85 42 */     sta CurrentBank
 /* 1C7C1: 99 00 C0 */  sta BankTable,y
 /* 1C7C4: 60 */        rts
+.endif
+	jmp Switch16kBank
 
 
 
@@ -1905,6 +2007,8 @@ BossKilledCondition1:
 /* 1CA80: C9 09 */     cmp #$09
 /* 1CA82: D0 03 */     bne L1CA87
 ; Handle last boss killed
+	lda #$f
+	jsr SwitchBankA
 /* 1CA84: 4C 8E F2 */  jmp L1F28E
 L1CA87:
 /* 1CA87: C9 0A */     cmp #$0A
@@ -1996,7 +2100,11 @@ Boss6KilledPalette:; colours for some purpose
 L1CB03:
 /* 1CB03: A2 10 */     ldx #$10
 /* 1CB05: 86 2F */     stx RefObjectNum
+	lda #$e
+	jsr SwitchBankA
 /* 1CB07: 20 FD AE */  jsr ReplaceObjectWithExplosion
+	lda #($5 * 2 + 1)
+	jsr SwitchBankA
 /* 1CB0A: A9 F8 */     lda #$F8
 /* 1CB0C: 8D 10 06 */  sta $0610
 /* 1CB0F: 8D 01 06 */  sta ObjectPosY+1
@@ -2049,7 +2157,7 @@ L1CB52:
 /* 1CB6C: 4C CE CA */  jmp L1CACE
 
 ObjectVerifyBackgroundCollision:
-/* 1CB6F: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1CB6F: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 /* 1CB72: A5 01 */     lda $01
 /* 1CB74: 85 0C */     sta $0C
 /* 1CB76: A5 00 */     lda $00
@@ -2069,7 +2177,8 @@ L1CB80: ; -
 /* 1CB8E: 10 F0 */     bpl L1CB80 ; -                                           ; $CB80
 
 /* 1CB90: 20 90 D7 */  jsr AnalyzeCurrentTile
-/* 1CB93: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1CB93: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 CB96_table: .byte $F4, $FC, $0B
 L1CB99: ; +
@@ -2108,14 +2217,16 @@ L1CBB6: ; -
 /* 1CBCD: F0 08 */     beq L1CBD7
 /* 1CBCF: A9 00 */     lda #$00
 /* 1CBD1: 85 2A */     sta $2A
-/* 1CBD3: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1CBD3: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 L1CBD6:
 /* 1CBD6: 68 */        pla
 
 L1CBD7:
 /* 1CBD7: A9 01 */     lda #$01
 /* 1CBD9: 85 2A */     sta $2A
-/* 1CBDB: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1CBDB: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 
 UpdateCurrentTileState:
@@ -2145,7 +2256,7 @@ L1CC0C: ; +
 /* 1CC0D: 69 0C */     adc #$0C ;Up.
 L1CC0F: ; ++
 /* 1CC0F: 85 0E */     sta $0E
-/* 1CC11: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1CC11: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 /* 1CC14: 20 B7 CC */  jsr ReadCurrentStageMap
 /* 1CC17: C9 02 */     cmp #$02
 /* 1CC19: D0 0F */     bne L1CC2A ; +++
@@ -2160,11 +2271,12 @@ L1CC26: ; +
 L1CC28: ; ++
 /* 1CC28: 85 30 */     sta CurrentTileState
 L1CC2A: ; +++
-/* 1CC2A: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1CC2A: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 
 DoCollisionCheckFor:
-/* 1CC2D: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1CC2D: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 
 /* 1CC30: A5 03 */     lda $03
 /* 1CC32: 85 0E */     sta $0E
@@ -2192,7 +2304,8 @@ L1CC3E: ; -
 /* 1CC54: 10 E8 */     bpl L1CC3E ; -                                           ; $CC3E
 
 /* 1CC56: 20 E1 D7 */  jsr F1D7E1
-/* 1CC59: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1CC59: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 CC5C_table:
     .byte $00,$07 ;+7
@@ -2238,11 +2351,13 @@ L1CC74: ; ++
 /* 1CCA7: F0 07 */     beq L1CCB0 ; +                                           ; $CCB0
 /* 1CCA9: A9 00 */     lda #$00
 /* 1CCAB: 85 2B */     sta $2B
-/* 1CCAD: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1CCAD: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 L1CCB0: ; +
 /* 1CCB0: A9 01 */     lda #$01
 /* 1CCB2: 85 2B */     sta $2B
-/* 1CCB4: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1CCB4: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 
 ReadCurrentStageMap:
@@ -2358,9 +2473,12 @@ BlockTransparencyMap: ; at CD46
     .byte 0,1,0,0 ;8 W3
     .byte 0,1,3,2 ;9 W4
     .byte 0,1,0,0 ;A gruu
+	
+	; A bug in the ending code treats the start of the next function as the entry for the ending. Since it's commented out, need to include it in the table manually.
+	.byte $20, $9c, $c3, $a0
 
 RecalculateActivesLowerIndex:
-/* 1CD72: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1CD72: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 /* 1CD75: A0 00 */     ldy #$00
 L1CD77: ; -
 /* 1CD77: B9 22 07 */  lda RoomActiveTable+2,y ;is it in same screen?
@@ -2373,7 +2491,8 @@ L1CD77: ; -
 /* 1CD83: D0 F2 */     bne L1CD77 ; -                                           ; $CD77
 L1CD85: ; +
 /* 1CD85: 84 8E */     sty ActivesLowerIndex
-/* 1CD87: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1CD87: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 
 
@@ -2447,7 +2566,7 @@ L1CDE5: ; +++
 ; up gutsblock. If it hasn't, it reads the level map.
 ; Then it sets up the TSA transfer data.
 DrawBlockFromActiveLevelMap:
-/* 1CDE8: 20 9C C3 */  jsr SwitchBankStage                         ; $C39C
+/* 1CDE8: 20 9C C3 */  ;jsr SwitchBankStage                         ; $C39C
 /* 1CDEB: E6 1C */     inc TSAPPUtransferSize
 
 /* 1CDED: 20 9A CE */  jsr CalculateNametableAddress
@@ -2549,7 +2668,8 @@ L1CE70: ; +++
 /* 1CE91: 9D 00 03 */  sta TSAPPUtransfer0NTdata-2,x
 /* 1CE94: E8 */        inx
 /* 1CE95: 86 0D */     stx $0D
-/* 1CE97: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1CE97: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 ;
 ; If $05 is even then $09,$10 = #$2023 else $09,$10 = #$2427
@@ -2685,7 +2805,7 @@ Adjust32x32BlockAddress:
 
 
 F1CF23:
-/* 1CF23: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1CF23: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 /* 1CF26: A5 33 */     lda $33
 /* 1CF28: 4A */        lsr a
 /* 1CF29: 4A */        lsr a
@@ -2871,7 +2991,8 @@ L1D057: ; +
 /* 1D05B: A9 FF */     lda #$FF
 /* 1D05D: 4D 14 03 */  eor TSAPPUtransfer0AttrData
 /* 1D060: 8D 14 03 */  sta TSAPPUtransfer0AttrData
-/* 1D063: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1D063: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 
 OpenFirstDoor:
@@ -2913,7 +3034,7 @@ CloseBossDoor:
 
 AnimateDoor:
 /* 1D09B: EE A0 06 */  inc ObjectLifeCycleCounter+0 ;ensure Megaman won't do anything funny in the meantime
-/* 1D09E: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1D09E: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 
 /* 1D0A1: 48 */        pha
 /* 1D0A2: A9 24 */      lda #$24        ; Machine sound
@@ -2926,7 +3047,7 @@ AnimateDoor:
 /* 1D0AE: E8 */        inx
 /* 1D0AF: 86 59 */     stx $59
 L1D0B1: ; -
-/* 1D0B1: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1D0B1: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 
 /* 1D0B4: A6 59 */     ldx $59
 /* 1D0B6: A9 00 */     lda #$00
@@ -2975,7 +3096,8 @@ L1D0B1: ; -
 /* 1D101: A9 00 */     lda #$00
 /* 1D103: 8D A0 06 */  sta ObjectLifeCycleCounter+0 ;restore life to Megaman
 L1D106: ; ++
-/* 1D106: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1D106: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 
 
@@ -3011,9 +3133,16 @@ L1D118: ; -
 ; Updates gameplay? (or more likely only graphics?...)
 
 UpdateGraphics:
+	lda CurBank8
+	pha
+	lda CurBankA
+	pha
 /* 1D131: A9 06 */     lda #$06
+.if 0
 /* 1D133: 85 42 */     sta CurrentBank
 /* 1D135: 8D 06 C0 */  sta BankTable+6
+.endif
+	jsr Switch16kBank
 
 ; Hide *all* sprites
 /* 1D138: A0 00 */     ldy #$00
@@ -3039,7 +3168,8 @@ L1D14E: ; -
 /* 1D155: C5 0C */     cmp $0C
 /* 1D157: D0 F5 */     bne L1D14E ; -                                           ; $D14E
 
-/* 1D159: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1D159: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	beq L1D16B
 
 ; Even frame
 L1D15C: ; +
@@ -3054,7 +3184,10 @@ L1D161: ; -
 /* 1D166: 10 F9 */     bpl L1D161 ; -                                           ; $D161
 
 /* 1D168: 20 6E D3 */  jsr DrawScoreAndMeters                          ; $D36E
-/* 1D16B: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+L1D16B:
+/* 1D16B: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	pla
+	jmp RetToBank
 
 
 DrawObject:
@@ -3302,7 +3435,9 @@ L1D2A3:
 L1D2A6: ; +
 /* 1D2A6: 68 */        pla
 /* 1D2A7: 68 */        pla
-/* 1D2A8: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1D2A8: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	pla
+	jmp RetToBank
 
 
 
@@ -3842,9 +3977,32 @@ L1D51D: ; +++
 
 
 CallSoundCode:
+/* ... */
+
+	; Break out into separate function to make it easier to patch in derivative hacks
+	jsr UpdateSound
+	
+/* 1D574: A5 0D */     lda $0D
+/* 1D576: 45 46 */     eor RandomSeed
+/* 1D578: 65 23 */     adc FrameCounter
+/* 1D57A: 4A */        lsr a
+/* 1D57B: 85 46 */     sta RandomSeed
+
+/* 1D57D: 68 */        pla
+/* 1D57E: A8 */        tay
+/* 1D57F: 68 */        pla
+/* 1D580: AA */        tax
+/* 1D581: 68 */        pla
+/* 1D582: 40 */        rti
+
+.proc UpdateSound
+.if 0
 /* 1D54C: A9 04 */     lda #$04        ; Switch in sound code bank
 /* 1D54E: 8D 04 C0 */  sta BankTable+4
-
+.endif
+	lda #SOUND_BANK
+	jsr Switch16kBankUnsafe
+	
 /* 1D551: 20 00 90 */  jsr SoundCodePlay                       ; $9000
 
 ; Initialize all newly issued sounds
@@ -3872,24 +4030,13 @@ L1D56A: ; ++
 /* 1D56C: D0 E6 */     bne L1D554 ; -                                   ; $0001D554
 
 L1D56E: ; +++
-
+.if 0
 /* 1D56E: A5 42 */     lda CurrentBank
 /* 1D570: AA */        tax
 /* 1D571: 9D 00 C0 */  sta BankTable,x
-
-/* 1D574: A5 0D */     lda $0D
-/* 1D576: 45 46 */     eor RandomSeed
-/* 1D578: 65 23 */     adc FrameCounter
-/* 1D57A: 4A */        lsr a
-/* 1D57B: 85 46 */     sta RandomSeed
-
-/* 1D57D: 68 */        pla
-/* 1D57E: A8 */        tay
-/* 1D57F: 68 */        pla
-/* 1D580: AA */        tax
-/* 1D581: 68 */        pla
-/* 1D582: 40 */        rti
-
+.endif
+	jmp RestoreBanksUnsafe
+.endproc ; UpdateSound
 
 ScreenShakeX: ;At 1D583
 .byte $00,$08,$00,$F8,$00
@@ -4470,8 +4617,11 @@ StageSelectionGFXsource: ; at $D822
 ;; Begin the stage selection screen.
 ExecStageSelectionScreen:
 /* 1D846: A9 06 */     lda #$06
+.if 0
 /* 1D848: 85 42 */     sta CurrentBank
 /* 1D84A: 8D 06 C0 */  sta BankTable+6
+.endif
+	jsr Switch16kBank
 /* 1D84D: A9 00 */     lda #$00
 /* 1D84F: 8D 06 20 */  sta $2006 ;PPU address=$0000
 /* 1D852: 8D 06 20 */  sta $2006
@@ -4481,9 +4631,12 @@ L1D859: ; ---
 /* 1D859: 0A */        asl a
 /* 1D85A: AA */        tax
 /* 1D85B: BD 1E D8 */  lda StageSelectionGFXinfo+0,x
+.if 0
 /* 1D85E: A8 */        tay
 /* 1D85F: 85 42 */     sta CurrentBank
 /* 1D861: 99 00 C0 */  sta BankTable,y
+.endif
+	jsr Switch16kBank
 
 /* 1D864: BD 32 D8 */  lda StageSelectionGFXsource+0,x
 /* 1D867: 85 04 */     sta $04
@@ -4508,10 +4661,15 @@ L1D874: ; -
 /* 1D885: C9 0A */     cmp #$0A
 /* 1D887: D0 D0 */     bne L1D859 ; ---
 /* 1D889: A9 06 */     lda #$06
+.if 0
 /* 1D88B: 85 42 */     sta CurrentBank
 /* 1D88D: 8D 06 C0 */  sta BankTable+6
+.endif
+	jsr Switch16kBank
 /* 1D890: 20 F6 BF */  jsr RunStageSelectionScreen
-/* 1D893: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1D893: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	lda #($5 * 2 + 1)
+	jmp SwitchBankA
 
 LoadEnemies:
 /* 1D896: A5 3E */     lda BossCurrentStrategy ; No enemy loading if fighting boss
@@ -4519,9 +4677,14 @@ LoadEnemies:
 L1D89A: ; -
 /* 1D89A: 60 */        rts
 L1D89B: ; +
+	lda CurBank8
+	pha
 /* 1D89B: A9 06 */     lda #$06
+.if 0
 /* 1D89D: 8D 06 C0 */  sta BankTable+6
 /* 1D8A0: 85 42 */     sta CurrentBank
+.endif
+	jsr Switch16kBank
 /* 1D8A2: A5 8F */     lda ZigZagFireStatus
 /* 1D8A4: F0 03 */     beq L1D8A9 ; +
 /* 1D8A6: 20 02 DB */  jsr UpdateZigZagFire
@@ -4601,7 +4764,8 @@ L1D916: ; ++
 /* 1D91A: E6 8B */     inc PreviousEnemyIndex
 /* 1D91C: D0 E6 */     bne L1D904 ; -
 L1D91E: ; +++
-/* 1D91E: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1D91E: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	jmp RetToBank5
 
 LoadEnemies_Backward:
 /* 1D921: A5 1B */     lda ScrollPosScreen
@@ -4663,7 +4827,8 @@ L1D982: ; +
 /* 1D982: C6 8C */     dec CurrentEnemyIndex
 /* 1D984: D0 E1 */     bne L1D967
 L1D986: ; ++
-/* 1D986: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1D986: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	jmp RetToBank5
 
 
 LoadEnemyNumber:
@@ -4969,6 +5134,8 @@ Loc_DB80:
     .byte $1F,$B0,$04
     .byte $00,$B0,$04
 
+.segment "BOSS_BANK"
+
 ;
 ; Do boss AI?...
 ;
@@ -5043,7 +5210,7 @@ F1DBC4:
 /* 1DBF7: A9 5E */     lda #$5E
 /* 1DBF9: 85 3F */     sta BossVariable3F
 /* 1DBFB: E6 2F */     inc RefObjectNum
-/* 1DBFD: 20 3D C5 */  jsr C53D_routine
+/* 1DBFD: 20 3D C5 */  jsr F1C53D
 /* 1DC00: A5 AC */     lda FightingBossNum
 /* 1DC02: D0 05 */     bne L1DC09 ; +
 /* 1DC04: A9 26 */     lda #$26        ; Issue "Cutman sound" for boss 0
@@ -6966,7 +7133,7 @@ L1E84D:
 /* 1E852: B9 63 E9 */  lda E963_table,y ; Y = 0-$25
 /* 1E855: 48 */        pha
 /* 1E856: 29 F0 */     and #$F0
-/* 1E858: 9D C0 06 */  sta ObjectLifeMeter,x
+/* 1E858: 9D C0 06 */  sta ObjectLifeMeter,x ; Target X
 /* 1E85B: 68 */        pla
 /* 1E85C: 0A */        asl a
 /* 1E85D: 0A */        asl a
@@ -6977,7 +7144,7 @@ L1E84D:
 /* 1E865: 98 */        tya
 /* 1E866: 0A */        asl a
 /* 1E867: 0A */        asl a
-/* 1E868: 9D 40 06 */  sta ObjectFireDelay,x
+/* 1E868: 9D 40 06 */  sta ObjectFireDelay,x ; Piece index * 4
 /* 1E86B: A0 08 */     ldy #$08
 /* 1E86D: 20 33 F5 */  jsr InitObjectDefaultSpeed
 /* 1E870: E6 3F */     inc BossVariable3F
@@ -6986,7 +7153,7 @@ L1E872:
 
 
 
-
+.segment "ENEMY_BANK"
 
 F1E873:
 /* 1E873: BC 40 06 */  ldy ObjectFireDelay,x
@@ -7153,6 +7320,8 @@ F1E944:
 /* 1E960: 85 04 */     sta $04
 /* 1E962: 60 */        rts
 
+.segment "BOSS_BANK"
+
 E963_table:
     .byte $E8,$E7,$E9,$E6
     .byte $D7,$D8,$D6,$D5
@@ -7165,6 +7334,9 @@ E976_table:
     .byte $49,$48,$47,$45,$46
     .byte $58,$56,$57,$55,$59
     .byte $67
+	
+.segment "ENEMY_BANK"
+
 E989_table:
     .byte $A1,$00,$A8,$A9
     .byte $96,$97,$9D,$00
@@ -7223,6 +7395,8 @@ EA21_table:
     .byte $E4,$E5,$BB,$BC
     .byte $00,$40,$00,$41
     .byte $18,$00,$19,$00
+
+.segment "BOSS_BANK"
 
 Boss6Strategies: ;at EA69
     .word Boss6Strategy0
@@ -7876,7 +8050,7 @@ L1EE78: ; +
 /* 1EE82: E9 00 */     sbc #$00
 L1EE84: ; ++
 /* 1EE84: 9D 60 04 */  sta ObjectPosScreen,x
-/* 1EE87: 20 3D C5 */  jsr C53D_routine
+/* 1EE87: 20 3D C5 */  jsr F1C53D
 /* 1EE8A: A5 0D */     lda $0D
 /* 1EE8C: C9 03 */     cmp #$03
 /* 1EE8E: D0 06 */     bne L1EE96
@@ -8179,7 +8353,7 @@ L1F09E: ; +
 /* 1F0BB: 85 14 */     sta JoyPad0
 /* 1F0BD: 60 */        rts
 
-
+.segment "COMMON_BANK"
 
 DoPPUtransferRoutineF0BE:
 ; Input:
@@ -8190,14 +8364,21 @@ DoPPUtransferRoutineF0BE:
 /* 1F0BE: 84 5B */     sty $5B
 /* 1F0C0: 85 5A */     sta $5A
 /* 1F0C2: 8E 80 03 */  stx RawPPUtransferAddress+0
+	lda CurBankA
+	pha
 /* 1F0C5: A2 00 */     ldx #$00
 L1F0C7: ; --
 /* 1F0C7: 86 59 */     stx $59
 /* 1F0C9: 8E 81 03 */  stx RawPPUtransferAddress+1
 /* 1F0CC: A6 5C */     ldx $5C
+	lda CurBank8
+	pha
 /* 1F0CE: 8A */        txa
+.if 0
 /* 1F0CF: 85 42 */     sta CurrentBank
 /* 1F0D1: 9D 00 C0 */  sta BankTable,x
+.endif
+	jsr Switch16kBankFast ;; Safe??
 
 /* 1F0D4: A0 20 */     ldy #$20
 /* 1F0D6: 84 5E */     sty RawPPUtransferSize
@@ -8207,10 +8388,16 @@ L1F0D8: ; -
 /* 1F0DA: 99 82 03 */  sta RawPPUtransferBuf,y
 /* 1F0DD: 88 */        dey
 /* 1F0DE: 10 F8 */     bpl L1F0D8 ; -                                           ; $F0D8
-
+.if 0
 /* 1F0E0: A9 05 */     lda #$05
 /* 1F0E2: 85 42 */     sta CurrentBank
 /* 1F0E4: 8D 05 C0 */  sta BankTable+5
+.endif
+	lda #($5 * 2 + 1)
+	jsr SwitchBankA
+	pla
+	jsr SwitchBank8
+	
 /* 1F0E7: 20 1B C0 */  jsr NextFrame                                   ; $C01B
 
 /* 1F0EA: 18 */        clc
@@ -8227,10 +8414,12 @@ L1F0D8: ; -
 /* 1F0FD: 8D 80 03 */  sta RawPPUtransferAddress+0
 /* 1F100: C6 5B */     dec $5B
 /* 1F102: D0 C3 */     bne L1F0C7 ; --                                          ; $F0C7
+	pla
+	jmp SwitchBankA
 /* 1F104: 60 */        rts
 
 
-
+.segment "BOSS_BANK"
 
 Boss8and9init:
 L1F105: ; -
@@ -8265,9 +8454,16 @@ L1F128: ; +
 /* 1F139: A2 12 */     ldx #$12
 /* 1F13B: A0 10 */     ldy #$10
 /* 1F13D: 20 BE F0 */  jsr DoPPUtransferRoutineF0BE
+	jsr F1F140
+	
+.segment "COMMON_BANK"
+
+F1F140:
+.if 0
 /* 1F140: A9 05 */     lda #$05
 /* 1F142: 8D 05 C0 */  sta BankTable+5
 /* 1F145: 85 42 */     sta CurrentBank
+.endif
 /* 1F147: A2 07 */     ldx #$07
 /* 1F149: A9 0F */     lda #$0F
 L1F14B:
@@ -8279,6 +8475,9 @@ L1F14B:
 /* 1F156: 85 59 */     sta $59
 /* 1F158: A2 00 */     ldx #$00
 L1F15A:
+	lda #$5
+	jsr Switch16kBank
+
 /* 1F15A: BC A1 8E */  ldy RoomActives2+1,x
 /* 1F15D: 84 5E */     sty RawPPUtransferSize
 /* 1F15F: C8 */        iny
@@ -8295,12 +8494,19 @@ L1F166:
 /* 1F170: D0 F4 */     bne L1F166
 /* 1F172: 86 5A */     stx $5A
 /* 1F174: 20 31 D1 */  jsr UpdateGraphics                              ; $D131
+	lda #($3 * 2)
+	jsr SwitchBank8
 /* 1F177: 20 1B C0 */  jsr NextFrame                                   ; $C01B
 /* 1F17A: A6 5A */     ldx $5A
 /* 1F17C: C6 59 */     dec $59
 /* 1F17E: D0 DA */     bne L1F15A
 /* 1F180: A9 00 */     lda #$00
 /* 1F182: 85 2F */     sta RefObjectNum
+	lda #$f
+	jmp SwitchBankA
+	
+.segment "BOSS_BANK"
+
 /* 1F184: A2 10 */     ldx #$10
 L1F186:
 /* 1F186: 20 7B F6 */  jsr InitActor
@@ -8320,7 +8526,7 @@ L1F186:
 /* 1F1A6: D0 DE */     bne L1F186
 
 L1F1A8: ; -
-/* 1F1A8: 20 EA 98 */  jsr RunEnemyAI                                   ; $98EA
+/* 1F1A8: 20 EA 98 */  jsr FarCallRunEnemyAI                                   ; $98EA
 /* 1F1AB: AD 90 04 */  lda $0490
 /* 1F1AE: C9 AB */     cmp #$AB
 /* 1F1B0: B0 09 */     bcs L1F1BB ; +                                           ; $F1BB
@@ -8477,7 +8683,7 @@ L1F2A3: ; -
 /* 1F2E1: A9 50 */     lda #$50
 /* 1F2E3: 9D 20 04 */  sta ObjectFlags,x
 L1F2E6: ; +
-/* 1F2E6: 20 EA 98 */  jsr RunEnemyAI                                   ; $98EA
+/* 1F2E6: 20 EA 98 */  jsr FarCallRunEnemyAI                                   ; $98EA
 /* 1F2E9: 20 31 D1 */  jsr UpdateGraphics                              ; $D131
 /* 1F2EC: 20 1B C0 */  jsr NextFrame                                   ; $C01B
 
@@ -8523,8 +8729,16 @@ L1F2F7: ; -
 /* 1F340: 85 3E */     sta BossCurrentStrategy
 /* 1F342: A2 FF */     ldx #$FF
 /* 1F344: 9A */        txs
+	jmp L1F345
+	
+.segment "COMMON_BANK"
+
+L1F345:
+	lda #($5 * 2 + 1)
+	jsr SwitchBankA
 /* 1F345: 4C 5E 91 */  jmp L1515E
 
+.segment "BOSS_BANK"
 
 F348_table:
     ; first byte: number of tiles
@@ -8572,7 +8786,7 @@ L1F3B7: ; ++
 /* 1F3B9: 20 77 C4 */  jsr IssueSound                                  ; $C477
 /* 1F3BC: 60 */        rts
 
-
+.segment "COMMON_BANK"
 
 AI_Object32:
 /* 1F3BD: A5 23 */     lda FrameCounter
@@ -9016,10 +9230,11 @@ L1F6EC: ; ++
 /* 1F6EC: 85 0C */     sta $0C
 /* 1F6EE: BD F0 05 */  lda MagnetBeamPosY,x
 /* 1F6F1: 85 0E */     sta $0E
-/* 1F6F3: 20 9C C3 */  jsr SwitchBankStage                             ; $C39C
+/* 1F6F3: 20 9C C3 */  ;jsr SwitchBankStage                             ; $C39C
 /* 1F6F6: 20 B7 CC */  jsr ReadCurrentStageMap
 /* 1F6F9: A8 */        tay
-/* 1F6FA: 4C B3 C3 */  jmp SwitchBank05                                ; $C3B3
+/* 1F6FA: 4C B3 C3 */  ;jmp SwitchBank05                                ; $C3B3
+	rts
 
 
 RoutineF6FD_GutsmanWeapon:
@@ -9316,8 +9531,10 @@ F1F94C:
 
 DrawAtReset:
 
+	lda CurBank8
+	pha
+	
 /* 1F956: 20 9C C3 */  jsr SwitchBankStage     ; $C39C
-
 /* 1F959: A9 20 */     lda #$20
 /* 1F95B: 8D 06 20 */  sta $2006 ;mem addr $2000
 /* 1F95E: A9 00 */     lda #$00
@@ -9560,7 +9777,8 @@ L1FA21: ; -
 /* 1FA26: D0 F9 */       bne L1FA21 ; -
 L1FA28: ; ---
 /* 1FA28: 20 95 D4 */    jsr DisableNMIandPPU
-/* 1FA2B: 4C B3 C3 */    jmp SwitchBank05
+/* 1FA2B: 4C B3 C3 */    ;jmp SwitchBank05
+	jmp RetToBank5
 
  ; Read input for "game over" screen
 L1FA2E: ; +
@@ -9789,15 +10007,7 @@ L1FEEF: ;at $FEEF / $FEBB U
 	.byte  4,10, 4, 4,10, 4, 4, 4
     .byte  4, 4, 4
 	
-.ifdef J_VERSION
-	.res 6, $FF
-	
-	.res $E0, 0
-	
-	; Nintendo header
-	.byte "         ROCKMAN"
-	.dbyt $27B9
-.else
+.ifndef J_VERSION
 	; Extra entries from indices 3d-70
     .byte 10, 1, 1, 4, 1, 3, 3, 4
     .byte  4, 4, 3, 1, 3, 2, 1, 3
@@ -9806,20 +10016,190 @@ L1FEEF: ;at $FEEF / $FEBB U
     .byte  3, 3, 3, 0, 2, 2, 0, 0
     .byte  2, 4,10, 4, 4,10, 4, 4
     .byte  4, 4, 4, 4
-	.res 6, $ff
+.endif
+
+	.res 6, $FF
 	
-	.res $e0, 0
+.proc ResetHdlr ; $11 bytes
+	; Importantly, NMI will be disabled on reset
+	sei
 	
+	; Must clear zero page first so bank vars will be initialized after
+	lda #$0
+	tax
+	
+@MemLoop:
+	sta $0, X
+	inx
+	bne @MemLoop
+
+	; Not necessary to set up S quite yet
+	
+	; Also serves to initialize MMC3 bank control
+	lda #$5
+	jsr Switch16kBankFast
+	
+	jmp ResetHdlrPart2
+.endproc ; ResetHdlr
+
+.proc RestoreBanksUnsafe ; 1a bytes
+	lda #SWITCH_BANK_8
+	sta BankCtrlReg
+	
+	lda CurBank8
+	sta BankReg
+	
+	lda #SWITCH_BANK_A
+	sta BankCtrlReg
+	
+	lda CurBankA
+	sta BankReg
+
+	lda CurBankCtrl
+	sta BankCtrlReg
+	
+	rts
+.endproc ; RestoreBanksUnsafe
+
+.proc Switch16kBank ; $21 bytes
+	stx SetBankTemp
+	
+	sta Cur16kBank
+
+	asl A
+	sta CurBank8
+	
+	ldx #SWITCH_BANK_8
+	stx CurBankCtrl
+	stx BankCtrlReg
+	sta BankReg
+	
+	ora #$1
+	inx
+	sta CurBankA
+	stx CurBankCtrl
+	stx BankCtrlReg
+	sta BankReg
+	
+	ldx SetBankTemp
+	
+	rts
+.endproc
+	
+; Faster version that clobbers X
+.proc Switch16kBankFast ; $1d bytes
+	sta Cur16kBank
+
+	asl A
+	sta CurBank8
+	
+	ldx #SWITCH_BANK_8
+	stx CurBankCtrl
+	stx BankCtrlReg
+	sta BankReg
+	
+	ora #$1
+	inx
+	sta CurBankA
+	stx CurBankCtrl
+	stx BankCtrlReg
+	sta BankReg
+	
+	rts
+.endproc
+
+; Set A bank for $8000-9fff
+SwitchBank8: ; 7 bytes
+	sta CurBank8
+	
+	pha
+	
+	lda #SWITCH_BANK_8
+	
+	bne SwitchBankCommon
+
+SwitchBankA: ; 5 bytes
+	sta CurBankA
+	
+	pha
+	
+	lda #SWITCH_BANK_A
+	
+SwitchBankCommon: ; $a bytes
+	sta CurBankCtrl
+	sta BankCtrlReg
+	
+	pla
+	
+	sta BankReg
+	
+	rts
+	
+; Loads 2A, 2A+1 banks at $8000-bfff. Clobbers X.
+.proc Switch16kBankUnsafe ; $13 bytes
+	asl A
+	ldx #SWITCH_BANK_8
+	stx BankCtrlReg
+	sta BankReg
+	
+	ora #$1
+	inx
+	stx BankCtrlReg
+	sta BankReg
+	
+	rts
+.endproc
+	
+RetToBank5:
+	lda #($5 * 2 + 1)
+RetToBank:
+	jsr SwitchBankA
+	pla
+	jmp SwitchBank8
+
+.proc FarCallRunEnemyAI
+	lda CurBankA
+	pha
+	
+	lda #$e
+	jsr SwitchBankA
+	
+	jsr RunEnemyAI
+	
+	pla
+	jmp SwitchBankA
+.endproc ; FarCallRunEnemyAI
+
+.proc FarCallRunBossAI
+	lda CurBankA
+	pha
+	
+	lda #$f
+	jsr SwitchBankA
+	
+	jsr RunBossAI
+	
+	pla
+	jmp SwitchBankA
+.endproc ; FarCallRunBossAI
+
+.segment "NFOOTER"
+
+	; Nintendo header
+.ifdef J_VERSION
+	.byte "         ROCKMAN"
+	.dbyt $27B9
+.else
 	.byte "         MEGAMAN"
 	.dbyt $872B
 .endif
 
 	; Nintendo header + $12
 	.dbyt 0
-	.byte (3 << 4) | (1 << 3) | 0
-	.byte (0 << 7) | 2
+	.byte (4 << 4) | (1 << 3) | 0
+	.byte (0 << 7) | 4
 	.byte $01
 	.byte $06
 	.byte $08
 	.byte $B7
-	.word NMI, Reset, Reset
+	.word NMI, ResetHdlr, ResetHdlr

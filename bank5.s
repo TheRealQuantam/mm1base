@@ -6,10 +6,13 @@
 	This bank's disassembly is based on Rockman (J)
 */
 
-.segment "BANK5"
+.segment "BANKA"
 
 inc_bank_part 5, 0, $1000
 
+.segment "GAME_LOOP_BANK"
+
+.if 0
 Reset2:
 /* 15000: A2 FF */    LDX #$ff    ; Reinitialize stack pointer. Clean start!
 /* 15002: 9A */       TXS
@@ -38,9 +41,57 @@ L15017: ; -
 /* 15017: 99 00 00 */ STA $0000,Y
 /* 1501A: C8 */       INY
 /* 1501B: D0 FA */    BNE L15017 ; -                                               ; $9017
+.endif
+
+ResetHdlrPart2:
+	ldx #$5
+	
+@BankLoop:
+	lda @InitChrBanks, X
+	stx BankCtrlReg
+	sta BankReg
+	
+	dex
+	bpl @BankLoop
+	
+	txs
+	
+	lda #$1
+	sta PpuControl_2000
+	
+	lda #$6
+	sta PpuMask_2001
+	
+	lda #$0
+	sta PrgRamProtectReg
+	
+	tay ; Needs to be 0 at handoff
+	
+	lda #MIRROR_VERTICAL
+	sta MirrorReg
+	sta IrqDisableReg
+	
+	ldx #$1
+	
+@WaitForSet:
+	lda PpuStatus_2002
+	bpl @WaitForSet
+	
+@WaitForClear:
+	lda PpuStatus_2002
+	bmi @WaitForClear
+	
+	dex
+	bpl @WaitForSet
+
+	bmi L1501D
+	
+@InitChrBanks:
+	.byte 0, 2, 4, 5, 6, 7
 
 ; Clear rest of CPU-RAM
 
+L1501D:
 /* 1501D: A9 01 */    LDA #$01
 /* 1501F: 85 05 */    STA $05
 L15021: ; --
@@ -68,6 +119,7 @@ GameOver:
 ; Draw title screen
 /* 1503C: A9 0A */    LDA #$0A
 /* 1503E: 85 31 */    STA CurrentStage
+	jsr SwitchBankStage
 /* 15040: 20 5B C7 */ JSR WriteChr                                        ; $C75B
 
 ; Set palette
@@ -121,12 +173,16 @@ L15075: ; +
 /* 15075: A9 00 */    LDA #$00
 /* 15077: 85 AE */    STA BonusPearlCount
 /* 15079: 85 AB */    STA LastRestartPointType
+	jsr SwitchBankStage
 /* 1507B: 20 5B C7 */ JSR WriteChr                                        ; $C75B
 
 StageBegin:
+	jsr SwitchBankStage
 /* 1507E: 20 83 C4 */ JSR InitStagePaletteAndActives
 
 StageBeginFromDeath:
+	jsr SwitchBankStage
+	
 /* 15081: 18 */       CLC
 /* 15082: A5 AB */    LDA LastRestartPointType
 /* 15084: 65 31 */    ADC CurrentStage
@@ -319,7 +375,7 @@ L1519A: ; +
 
 ; Do this part UNLESS Megaman is transforming
 /* 151A7: 20 5C A3 */ JSR CheckHoldingBkey
-/* 151AA: 20 8C DB */ JSR RunBossAI
+/* 151AA: 20 8C DB */ JSR FarCallRunBossAI
 
 /* 151AD: A5 55 */    LDA MegamanBlinkState
 /* 151AF: F0 02 */    BEQ L151B3 ; +                                               ; $91B3
@@ -327,7 +383,7 @@ L1519A: ; +
 L151B3: ; +
 /* 151B3: 20 8B A1 */ JSR RunCollisionChecks
 /* 151B6: 20 61 A2 */ JSR RunWeaponAI
-/* 151B9: 20 EA 98 */ JSR RunEnemyAI                                       ; $98EA
+/* 151B9: 20 EA 98 */ JSR FarCallRunEnemyAI                                       ; $98EA
 
 L151BC: ; ++
 /* 151BC: 20 96 D8 */ JSR LoadEnemies
@@ -764,6 +820,7 @@ PauseFrameTick:
 /* 154A4: 20 1B C0 */ JSR NextFrame                                       ; $C01B
 /* 154A7: 60 */       RTS
 
+.segment "GAME_LOOP_BANK"
 
 MegamanAI:
 /* 154A8: A2 00 */    LDX #$00
@@ -1231,7 +1288,7 @@ L1575B: ; +
 /* 1577A: A9 08 */    LDA #$08
 /* 1577C: 9D 20 04 */ STA ObjectFlags,X
 /* 1577F: 9D 60 06 */ STA ObjectYSpeedFraction,X
-/* 15782: 20 3D C5 */ JSR C53D_routine
+/* 15782: 20 3D C5 */ JSR F1C53D
 
 L15785:
 /* 15785: A9 16 */    LDA #$16        ; Some kind of explosion
@@ -1393,6 +1450,7 @@ SetMegamanFacing:
 /* 1588B: 8D 20 04 */ STA ObjectFlags+0
 /* 1588E: 60 */       RTS
 
+.segment "COMMON_BANK"
 
 AutoCenterScreen:
 /* 1588F: 38 */       SEC
@@ -1454,6 +1512,8 @@ ObjectRelocateHorizontally: ; different from UpdateObjectMoveHorizontally
 /* 158E4: A5 21 */    LDA $21
 /* 158E6: 9D A0 04 */ STA ObjectPosXfraction,X
 /* 158E9: 60 */       RTS
+
+.segment "ENEMY_BANK"
 
 ;
 ; Note: does *not* perform AI for bosses (or Megaman, for that matter)
@@ -1556,6 +1616,8 @@ L1598A:
 /* 15992: 4C F2 98 */ JMP L158F2 ; ---                                             ; $98F2
 L15995: ; +
 /* 15995: 60 */       RTS
+
+.segment "COMMON_BANK"
 
 ObjectShouldBeDestroyed:
 ; A = Hit type
@@ -1687,7 +1749,7 @@ L15A52:
 /* 15A57: BD 20 04 */ LDA ObjectFlags,X
 /* 15A5A: 29 F7 */    AND #$f7
 /* 15A5C: 9D 20 04 */ STA ObjectFlags,X
-/* 15A5F: 20 3D C5 */ JSR C53D_routine
+/* 15A5F: 20 3D C5 */ JSR F1C53D
 
 /* 15A62: A9 2D */    LDA #$2d        ; Low-pitch noise (fire?...)
 /* 15A64: 20 77 C4 */ JSR IssueSound                                      ; $C477
@@ -2046,6 +2108,7 @@ L15CE5: ; ++++
 /* 15CE5: 18 */       CLC
 /* 15CE6: 60 */       RTS
 
+.segment "GAME_LOOP_BANK"
 
 F15CE7:
 /* 15CE7: A0 00 */    LDY #$00
@@ -2199,6 +2262,8 @@ Table9DDD:
     .byte $00,$03,$06,$0C,$0F,$12,$13,$14,$6E
 Table9DE6:
     .byte $00,$01,$08,$03,$00,$09,$01,$00,$00
+
+.segment "COMMON_BANK"
 
 ObjectUpdateMovementRight:
 ;
@@ -2891,6 +2956,8 @@ L16251: ; ++
 /* 1625E: 85 55 */    STA MegamanBlinkState
 /* 16260: 60 */       RTS
 
+.segment "GAME_LOOP_BANK"
+
 RunWeaponAI:
 /* 16261: A5 23 */    LDA FrameCounter
 /* 16263: 29 01 */    AND #$01
@@ -3031,6 +3098,10 @@ L16329: ; +
 /* 1632D: BD 00 04 */ LDA ObjectSpriteNum,X
 /* 16330: D9 88 A8 */ CMP GutsblockObjectSpritenum,Y
 /* 16333: D0 EE */    BNE L16323
+	jmp F16335
+	
+.segment "COMMON_BANK"
+
 F16335:
 /* 16335: 38 */       SEC
 /* 16336: BD 00 06 */ LDA ObjectPosY,X
@@ -3051,6 +3122,8 @@ F16335:
 /* 16357: 85 61 */    STA NumberOfFramesSinceShooting
 L16359:
 /* 16359: 60 */       RTS
+
+.segment "GAME_LOOP_BANK"
 
 WeaponAI_M:
 /* 1635A: 18 */       CLC
@@ -3282,10 +3355,14 @@ L164D9: ; +
 /* 164F6: 8D 66 04 */ STA ObjectPosScreen+6
 /* 164F9: 60 */       RTS
 
+.segment "COMMON_BANK"
+
 ; These tables describe how the fire ball revolves around Megaman.
 FireShieldYPosTable: .byte 20,14,0,NEG{14},NEG{20},NEG{14},0,14 ; at A4FA
 FireShieldXPosTable: .byte 0,NEG{14},NEG{20},NEG{14},0,14,20,14 ; at A502
 FireShieldPosScreenTable: .byte 0,NEG{1},NEG{1},NEG{1},0,0,0,0 ; at A50A
+
+.segment "GAME_LOOP_BANK"
 
 ; Something related to Elecman shots.
 BKeyHoldingAI_E:
@@ -3974,6 +4051,8 @@ MegamanWeaponFireData: ; at A999
     .byte $5D,$00,$11,$00,$03,$80,$01,$FC,$0C ;B
     .byte $5B,$00,$04,$00,$02,$00,$02,$FC,$0C ;C
     .byte $5E,$00,$00,$00,$00,$00,$00,$00,$00 ;M
+
+.segment "ENEMY_BANK"
 
 ; Seems to animate the object
 
@@ -6823,6 +6902,13 @@ AI_Object48:
 /* 17E05: 29 07 */    AND #$07
 /* 17E07: A8 */       TAY
 /* 17E08: 18 */       CLC
+	jmp L17E09
+	
+.segment "COMMON_BANK"
+
+L17E09:
+	lda #($5 * 2 + 1)
+	jsr SwitchBankA
 /* 17E09: A5 0D */    LDA $0D
 /* 17E0B: 79 FA A4 */ ADC FireShieldYPosTable,Y
 /* 17E0E: 9D 00 06 */ STA ObjectPosY,X
@@ -6833,9 +6919,12 @@ AI_Object48:
 /* 17E1A: A5 01 */    LDA $01
 /* 17E1C: 79 0A A5 */ ADC FireShieldPosScreenTable,Y
 /* 17E1F: 9D 60 04 */ STA ObjectPosScreen,X
+	lda #$e
+	jsr SwitchBankA
 /* 17E22: 20 49 BE */ JSR EnemyAI_MovementsAndDamageCheck
 /* 17E25: 60 */       RTS
 
+.segment "ENEMY_BANK"
 
 AI_Object4A:
 /* 17E26: BD 40 04 */ LDA ObjectUnknown440,X
@@ -7097,8 +7186,3 @@ L17F6B:
 /* 17F71: 86 45 */    STX NumIssuedSounds
 /* 17F73: A6 2F */    LDX RefObjectNum
 /* 17F75: 60 */       RTS
-
-
-
-L17F76: ;; empty space to the end of the bank, filled with $00
-    .res 138, 0

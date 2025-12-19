@@ -6,7 +6,7 @@
 	This bank's disassembly is from Mega Man (U)
 */
 
-.segment "BANK6"
+.segment "BANKC_D"
 
 ; Major object metasprite frame data addresses
 ; Unless the assembly is modified, this table MUST be located such that addr & $100 == 0. See 1D1F5.
@@ -233,14 +233,20 @@ SpriteTileRightXOffs:
     .byte $00,$f8,$00,$f8,$00,$f8,$00,$f8,$10,$08,$f0,$e8,$18,$10,$08,$e8
     .byte $e0,$18,$10,$e0,$18,$10,$e0,$18,$10,$08,$e8,$e0,$10,$08,$f0,$e8
 
+.segment "BANK1E_1F"
+
+	; MM1 has a bug where it reads index 6 from Lbl_864a which is out of bounds and has the value $8e. This indexes into a completely different table, fetching $ec. Correct for that.
+	
 Lbl_863a: ; Used at C564 - gives values for ObjectXSpeed and ObjectXSpeedFraction
-    .byte $00,$20,$21,$80,$01,$04,$15,$51,$61,$90
+	.byte $00,$20,$21,$80,$01,$04,$15,$51,$61,$90,$ec
 
 Lbl_8644: ; Used at C549 - sprite number compared to
     .byte $19,$1A,$27,$34,$36,$37
 
 Lbl_864a: ; Used at C556 - gives values for ObjectXSpeed and ObjectXSpeedFraction
-    .byte $00,$05,$00,$02,$01,$06
+	.byte $00,$05,$00,$02,$01,$06,$0a
+
+.segment "BANKC_D"
 
 ; Minor object metasprite frame data addresses
 MinObjFrameAddrs: ; 8650
@@ -2412,6 +2418,8 @@ Lbl_aa25:
 Lbl_aa72:
 	.res $8e, $ff
 
+.segment "ENDING_BANK"
+
 RunEndGameScene: ; at ab00
     lda #$f8
     sta ObjectPosY+0
@@ -2961,6 +2969,8 @@ PresentedText:
 .else
 		cr_line $22ea, "capcom u.s.a.,"
 .endif
+
+.segment "BANKC_D"
 
 WeaponSelectDialog: ;at B0CB
     clc
@@ -4862,14 +4872,15 @@ Lbl_bfd2:
 
 	.res $12, 0
 
+.segment "ENDING_BANK"
+
 Lbl_bff0:
     jmp RunEndGameScene
+	
+.segment "BANKC_D"
 
 DoWeaponSelectDialog: ;Lbl_bff3
     jmp WeaponSelectDialog
 
 RunStageSelectionScreen:
     jmp StageSelectionScreenMain
-
-Lbl_bff9:
-    .res 7, 0

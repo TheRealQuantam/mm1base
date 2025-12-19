@@ -1,15 +1,26 @@
 .include "globals.inc"
 
 ; ROM data banks
-inc_banks 0, 4
+;inc_banks 0, 4
+.segment "BANK0_1"
+	inc_bank_part 0, 0, $4000
+
+.segment "BANK2_3"
+	inc_bank_part 1, 0, $4000
+
+.segment "BANK4_5"
+	inc_bank_part 2, 0, $4000
+
+.segment "BANK6_7"
+	inc_bank_part 3, 0, $4000
 
 .segment "HDR"
 .byte "NES", $1a ; Signature
-.byte $20000 / $4000 ; Num 16-KB PRG-ROM banks
+.byte $40000 / $4000 ; Num 16-KB PRG-ROM banks
 .byte 0 / $2000 ; Num 8-KB CHR-ROM banks
-.byte (2 << 4) | 1 ; MMC1, vertical mirroring
+.byte (4 << 4) | 1 ; MMC3, vertical mirroring
 .byte 0
-.byte 0 / $2000 ; Num 8-KB PRG-RAM banks
+.byte $2000 / $2000 ; Num 8-KB PRG-RAM banks
 .byte 0 ; NTSC
 .res 6, 0
 

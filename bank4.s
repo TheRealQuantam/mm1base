@@ -115,7 +115,7 @@ VibratoBufferPointer          := $57C ;pointer to the "fifth" channel data
 ;   Fourth byte:
 ;     Tremolo speed? 0=disabled
 
-.segment "BANK4"
+.segment "BANK8_9"
 
 inc_bank_part 4, 0, $1000
 
