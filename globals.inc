@@ -430,15 +430,15 @@ L10ECF := $8ECF
 
 ; Bank 6 exports
 
-.global Lbl_bff0, MajObjFrameAddrs, MajObjFrameTableAddrs, TileOffsTableAddrs, SpriteTileYOffs, SpriteTileLeftXOffs, SpriteTileRightXOffs, Lbl_863a, Lbl_8644
-.global Lbl_864a, MinObjFrameAddrs, MinObjFrameTableAddrs, DefaultObjectFlags
+.global L1BFF0, MajObjFrameAddrs, MajObjFrameTableAddrs, TileOffsTableAddrs, SpriteTileYOffs, SpriteTileLeftXOffs, SpriteTileRightXOffs, L1863A, L18644
+.global L1864A, MinObjFrameAddrs, MinObjFrameTableAddrs, DefaultObjectFlags
 .global DefaultObjectSpeedCtrl, DefaultObjectFireDelay, EnemyDataPointers
 .global RunStageSelectionScreen
 
 ; Bank 7 exports
 
 .global WriteChr, InitStagePaletteAndActives, DrawAtReset, ExecStageSelectionScreen, FirstScreenScreenTable, RoomLayoutLoadRoomNum, HideSprites, IssueSound, InitEndGameScene, NextFrame, TeleportToStage, InvokeWeaponSelectDialog, RecalculateActivesLowerIndex, RunBossAI, LoadEnemies, UpdateGraphics, LifeCycleUntick_forEveryone, MegaManKilled, SetupEnemyGraphicsPointer, PaletteSetupForBG, OpenFirstDoor, OpenSecondDoor, PaletteSetupForBGwith3F0, TimeDelayWithSpriteUpdates, LifeCycleTick_forEnemies, UpdateCurrentTileState, FindFreeObject, InitObjectDefaultSpeed, InitActor, F1C53D, CreateGutsblockPieces, F1F853, CreateExplosionObject, TableObjectYHeightTable1, TableObjectYHeightTable2, DoCollisionCheckFor, F1C55D, TableObjectXWidthTable1, TableObjectXWidthTable2, ObjectVerifyBackgroundCollision, DrawBlockFromActiveLevelMap, LoadEnemyGraphics, F1CF23, DoTSAPPUtransfer, LoadActiveByIndexAndSetBlockingness, F1C64A, TestCollisionWithMegaman, GotItem, F1C7C5, L1FEEF, EnemyHitTable, TestShotHit, F1C7E4, F1F7B5, F1F6FD_GutsmanWeapon, F1F8C6, CheckCollisionAgainstActives, GutsblockHitByElecBeam, CheckMagnetBeamCollisionWithBG, LoadGutsblockPosition, AI_Object32, AI_Object3A, EnemySearchMegaman, EnemyCalculateJumpCurveToHitMegaman, CreateEnemy, RandomFunc, FindObjectOfSelectedType, F1C63F, F1F628, F1E8C5, F1E873, StageClear, EnemyKillScoreTable, IncreaseScore, WeaponDamageP, WeaponDamageC, WeaponDamageI, WeaponDamageB, WeaponDamageF, WeaponDamageE, WeaponDamageG
-.global F1C436, F1C442, TeleportToStage_Bank06callback, SpawnObject_TypeIsFF, F1C439, Lbl_c45e, CalculateNametableAddress, Adjust32x32BlockAddress, DrawBlockFromActiveLevelMap_Bank06callback, F1C400, Lbl_c3e3, MegamanPalette, PaletteSetupForSprites, WritePalette, DrawObject
+.global F1C436, F1C442, TeleportToStage_Bank06callback, SpawnObject_TypeIsFF, F1C439, L1C45E, CalculateNametableAddress, Adjust32x32BlockAddress, DrawBlockFromActiveLevelMap_Bank06callback, F1C400, L1C3E3, MegamanPalette, PaletteSetupForSprites, WritePalette, DrawObject
 
 .global SwitchBank8, SwitchBankA, FarCallRunEnemyAI, FarCallRunBossAI
 
