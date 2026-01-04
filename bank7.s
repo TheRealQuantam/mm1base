@@ -242,7 +242,7 @@ L1C13B: ; ++
 /* 1C145: 4C 6A 90 */  jmp L1506A
 
 ;C148                    C    I    B    F    E    G
-WeaponsOwnedTab:  .byte $20, $10, $02, $40, $04, $08 ;See also: Lbl_b50d
+WeaponsOwnedTab:  .byte $20, $10, $02, $40, $04, $08 ;See also: L1B50D
 ;C14E
 IndexIntoTheActiveThatPreventsEscapingRematch:
     .byte 0*6, 5*6, 3*6, 4*6, 1*6, 6*6 ;indexes into RoomActiveTable
@@ -693,7 +693,7 @@ L1C3E0: ; +
 /* 1C3E0: 4C F3 BF */  jmp DoWeaponSelectDialog
 
 ; Arrived from bank 6
-Lbl_c3e3:
+L1C3E3:
 /* 1C3E3: A5 AC */     lda FightingBossNum
 /* 1C3E5: C9 0A */     cmp #$0A
 /* 1C3E7: F0 0E */     beq L1C3F7 ; ++                                      ; $C3F7
@@ -745,7 +745,7 @@ InitEndGameScene:
 /* 1C426: A9 06 */     lda #$06
 /* 1C428: 85 42 */     sta CurrentBank
 /* 1C42A: 8D 06 C0 */  sta BankTable+6
-/* 1C42D: 4C F0 BF */  jmp Lbl_bff0
+/* 1C42D: 4C F0 BF */  jmp L1BFF0
 
 TeleportToStage_Bank06callback:
 /* 1C430: 20 E0 C4 */  jsr TeleportToStage                             ; $C4E0
@@ -774,7 +774,7 @@ SwitchBank06_c:
 /* 1C45A: 8D 06 C0 */  sta BankTable+6
 /* 1C45D: 60 */        rts
 
-Lbl_c45e:
+L1C45E:
 ; reset the current stage number?
 /* 1C45E: A9 00 */     lda #$00
 /* 1C460: 85 31 */     sta CurrentStage
@@ -943,7 +943,7 @@ F1C53D:
 /* 1C544: BD 00 04 */  lda ObjectSpriteNum,x
 /* 1C547: A0 06 */     ldy #$06
 L1C549: ; -
-/* 1C549: D9 44 86 */  cmp Lbl_8644,y
+/* 1C549: D9 44 86 */  cmp L18644,y
 /* 1C54C: F0 08 */     beq L1C556 ; +                                           ; $C556
 /* 1C54E: 88 */        dey
 /* 1C54F: 10 F8 */     bpl L1C549 ; -                                           ; $C549
@@ -951,7 +951,7 @@ L1C549: ; -
 /* 1C551: A0 00 */     ldy #$00
 /* 1C553: 4C 64 C5 */  jmp L1C564 ; ++                                          ; $C564
 L1C556: ; +
-/* 1C556: B9 4A 86 */  lda Lbl_864a,y
+/* 1C556: B9 4A 86 */  lda L1864A,y
 /* 1C559: A8 */        tay
 /* 1C55A: 4C 64 C5 */  jmp L1C564 ; ++                                          ; $C564
 F1C55D:
@@ -959,7 +959,7 @@ F1C55D:
 /* 1C55F: 85 42 */     sta CurrentBank
 /* 1C561: 8D 06 C0 */  sta BankTable+6
 L1C564: ; ++
-/* 1C564: B9 3A 86 */  lda Lbl_863a,y
+/* 1C564: B9 3A 86 */  lda L1863A,y
 /* 1C567: 48 */        pha
 /* 1C568: 29 F0 */      and #$F0
 /* 1C56A: 9D E0 04 */   sta ObjectXSpeedFraction,x
