@@ -1231,7 +1231,7 @@ L1575B: ; +
 /* 1577A: A9 08 */    LDA #$08
 /* 1577C: 9D 20 04 */ STA ObjectFlags,X
 /* 1577F: 9D 60 06 */ STA ObjectYSpeedFraction,X
-/* 15782: 20 3D C5 */ JSR C53D_routine
+/* 15782: 20 3D C5 */ JSR F1C53D
 
 L15785:
 /* 15785: A9 16 */    LDA #$16        ; Some kind of explosion
@@ -1687,7 +1687,7 @@ L15A52:
 /* 15A57: BD 20 04 */ LDA ObjectFlags,X
 /* 15A5A: 29 F7 */    AND #$f7
 /* 15A5C: 9D 20 04 */ STA ObjectFlags,X
-/* 15A5F: 20 3D C5 */ JSR C53D_routine
+/* 15A5F: 20 3D C5 */ JSR F1C53D
 
 /* 15A62: A9 2D */    LDA #$2d        ; Low-pitch noise (fire?...)
 /* 15A64: 20 77 C4 */ JSR IssueSound                                      ; $C477
@@ -2998,7 +2998,7 @@ L162E2: ; -
 /* 16303: D0 07 */    BNE L1630C ; ++                                              ; $A30C
 
 L16305: ; +
-/* 16305: 20 E4 C7 */ JSR C7E4_routine
+/* 16305: 20 E4 C7 */ JSR F1C7E4
 /* 16308: A9 FE */    LDA #$fe
 /* 1630A: 85 61 */    STA NumberOfFramesSinceShooting
 
@@ -3062,7 +3062,7 @@ CheckHoldingBkey:
 /* 16360: A5 5F */    LDA WeaponSelect
 /* 16362: C9 06 */    CMP #$06
 /* 16364: D0 03 */    BNE L16369 ; +
-/* 16366: 20 FD F6 */ JSR RoutineF6FD_GutsmanWeapon
+/* 16366: 20 FD F6 */ JSR F1F6FD_GutsmanWeapon
 L16369: ; +
 /* 16369: 60 */       RTS
 L1636A: ; ++
@@ -3164,7 +3164,7 @@ L16408: ; ++
 /* 1641D: ED 00 06 */ SBC ObjectPosY+0
 /* 16420: 85 03 */    STA $03
 /* 16422: A2 05 */    LDX #$05
-/* 16424: 20 C6 F8 */ JSR F8C6_routine
+/* 16424: 20 C6 F8 */ JSR F1F8C6
 /* 16427: A5 03 */    LDA $03
 /* 16429: C9 0C */    CMP #$0c
 /* 1642B: B0 06 */    BCS L16433 ; +
