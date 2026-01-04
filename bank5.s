@@ -3099,7 +3099,7 @@ L162E2: ; -
 /* 16303: D0 07 */    BNE L1630C ; ++                                              ; $A30C
 
 L16305: ; +
-/* 16305: 20 E4 C7 */ JSR C7E4_routine
+/* 16305: 20 E4 C7 */ JSR F1C7E4
 /* 16308: A9 FE */    LDA #$fe
 /* 1630A: 85 61 */    STA NumberOfFramesSinceShooting
 
@@ -3169,7 +3169,7 @@ CheckHoldingBkey:
 /* 16360: A5 5F */    LDA WeaponSelect
 /* 16362: C9 06 */    CMP #$06
 /* 16364: D0 03 */    BNE L16369 ; +
-/* 16366: 20 FD F6 */ JSR RoutineF6FD_GutsmanWeapon
+/* 16366: 20 FD F6 */ JSR F1F6FD_GutsmanWeapon
 L16369: ; +
 /* 16369: 60 */       RTS
 L1636A: ; ++
@@ -3271,7 +3271,7 @@ L16408: ; ++
 /* 1641D: ED 00 06 */ SBC ObjectPosY+0
 /* 16420: 85 03 */    STA $03
 /* 16422: A2 05 */    LDX #$05
-/* 16424: 20 C6 F8 */ JSR F8C6_routine
+/* 16424: 20 C6 F8 */ JSR F1F8C6
 /* 16427: A5 03 */    LDA $03
 /* 16429: C9 0C */    CMP #$0c
 /* 1642B: B0 06 */    BCS L16433 ; +

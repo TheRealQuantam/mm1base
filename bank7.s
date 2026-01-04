@@ -1514,7 +1514,7 @@ L1C7D1: ; -
 /* 1C7D3: A5 0C */     lda $0C
 /* 1C7D5: 20 86 C5 */  jsr FindLastObjectOfType
 /* 1C7D8: B0 03 */     bcs L1C7DD ; +                                           ; $C7DD
-/* 1C7DA: 20 FA C7 */  jsr C7FA_routine
+/* 1C7DA: 20 FA C7 */  jsr F1C7FA
 L1C7DD: ; +
 /* 1C7DD: E6 0C */     inc $0C
 /* 1C7DF: C6 0E */     dec $0E
@@ -1523,7 +1523,7 @@ L1C7DD: ; +
 
 
 
-C7E4_routine:
+F1C7E4:
 /* 1C7E4: A2 05 */     ldx #$05
 /* 1C7E6: A9 00 */     lda #$00
 /* 1C7E8: 85 0D */     sta $0D
@@ -1531,7 +1531,7 @@ L1C7EA: ; -
 /* 1C7EA: BD 00 06 */  lda ObjectPosY,x
 /* 1C7ED: C9 F8 */     cmp #$F8
 /* 1C7EF: F0 03 */     beq L1C7F4 ; +                                           ; $C7F4
-/* 1C7F1: 20 FA C7 */  jsr C7FA_routine
+/* 1C7F1: 20 FA C7 */  jsr F1C7FA
 L1C7F4: ; +
 /* 1C7F4: E8 */        inx
 /* 1C7F5: E0 0A */     cpx #$0A
@@ -1539,7 +1539,7 @@ L1C7F4: ; +
 /* 1C7F9: 60 */        rts
 
 
-C7FA_routine:
+F1C7FA:
 /* 1C7FA: BD 20 04 */  lda ObjectFlags,x     ; Flip direction of object (and?...)
 /* 1C7FD: 49 40 */     eor #$40
 /* 1C7FF: 29 F7 */     and #$F7
@@ -5420,7 +5420,7 @@ L1DD20: ; ++
 /* 1DD32: BD 00 06 */  lda ObjectPosY,x
 /* 1DD35: ED 01 06 */  sbc ObjectPosY+1
 /* 1DD38: 85 03 */     sta $03      ;Compare to Cutman's Y location
-/* 1DD3A: 20 C6 F8 */  jsr F8C6_routine
+/* 1DD3A: 20 C6 F8 */  jsr F1F8C6
 /* 1DD3D: A5 03 */     lda $03
 /* 1DD3F: C9 08 */     cmp #$08     ;If it's Y-wise farther than 8 pixels, let it live
 /* 1DD41: B0 12 */     bcs CutmanGotoStrategy
@@ -5797,7 +5797,7 @@ CutmanThrowScissor:
 /* 1DFA9: 38 */        sec
 /* 1DFAA: ED 00 06 */  sbc ObjectPosY+0                                 ; ObjectPosY+0
 /* 1DFAD: 85 03 */     sta $03
-/* 1DFAF: 20 C6 F8 */  jsr F8C6_routine
+/* 1DFAF: 20 C6 F8 */  jsr F1F8C6
 /* 1DFB2: E6 44 */     inc BossVariable44 ;scissor exists
 
 /* 1DFB4: A9 25 */     lda #$25        ; scissor machine sound
@@ -6856,7 +6856,7 @@ GutsmanStrategy18:
 /* 1E67F: E9 18 */     sbc #$18
 /* 1E681: E5 0C */     sbc $0C
 /* 1E683: 85 03 */     sta $03
-/* 1E685: 20 C6 F8 */  jsr F8C6_routine
+/* 1E685: 20 C6 F8 */  jsr F1F8C6
 /* 1E688: E6 44 */     inc BossVariable44
 L1E68A:
 /* 1E68A: 60 */        rts
@@ -9128,7 +9128,7 @@ F1F628:
 /* 1F62F: B9 00 06 */  lda ObjectPosY,y
 /* 1F632: ED 00 06 */  sbc ObjectPosY+0                                 ; ObjectPosY+0
 /* 1F635: 85 03 */     sta $03
-/* 1F637: 20 C6 F8 */  jsr F8C6_routine
+/* 1F637: 20 C6 F8 */  jsr F1F8C6
 /* 1F63A: 60 */        rts
 
 
@@ -9264,7 +9264,7 @@ L1F6EC: ; ++
 	rts
 
 
-RoutineF6FD_GutsmanWeapon:
+F1F6FD_GutsmanWeapon:
 /* 1F6FD: A5 60 */     lda WeaponFiring
 /* 1F6FF: D0 37 */     bne L1F738
 /* 1F701: AD 20 04 */  lda ObjectFlags+0
@@ -9473,7 +9473,7 @@ F8AE_table: .byte 2,0,NEG{2},0,1,NEG{2}   ;ObjectYSpeed for explosion
 F8BA_table: .byte $00,$40,$00,$00,$40,$40 ;ObjectFlags for explosion
             .byte $00,$00,$00,$40,$00,$00
 
-F8C6_routine:
+F1F8C6:
 /* 1F8C6: 08 */        php
 /* 1F8C7: B0 06 */     bcs L1F8CF ; +
 /* 1F8C9: A5 03 */     lda $03
